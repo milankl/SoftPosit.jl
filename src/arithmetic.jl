@@ -18,17 +18,16 @@
 /(x::Posit16,y::Posit16) = ccall((:p16_div, SoftPositPath), Posit16, (Posit16,Posit16),x,y)
 /(x::Posit32,y::Posit32) = ccall((:p32_div, SoftPositPath), Posit32, (Posit32,Posit32),x,y)
 
-# Unary minus
-#TODO Don't convert but cast directly
--(x::Posit8) = Posit8(-1.0)*x
--(x::Posit16) = Posit16(-1.0)*x
--(x::Posit32) = Posit32(-1.0)*x
+# Unary minus (multiply by posit -1)
+-(x::Posit8) = x*castP8(0xc0)
+-(x::Posit16) = x*castP16(0xc000)
+-(x::Posit32) = x*castP32(0xc0000000)
 
-# literal zero and one
-zero(::Posit8) = Posit8(0.0)
-zero(::Posit16) = Posit16(0.0)
-zero(::Posit32) = Posit32(0.0)
+# literal zero and one (via reinterpretation of hexadecimal)
+zero(::Posit8) = castP8(0x00)
+zero(::Posit16) = castP16(0x0000)
+zero(::Posit32) = castP32(0x00000000)
 
-one(::Posit8) = Posit8(1.0)
-one(::Posit16) = Posit16(1.0)
-one(::Posit32) = Posit32(1.0)
+one(::Posit8) = castP8(0x40)
+one(::Posit16) = castP16(0x4000)
+one(::Posit32) = castP32(0x40000000)

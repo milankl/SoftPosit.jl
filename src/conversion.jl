@@ -21,3 +21,8 @@ Posit32(x::Float32) = ccall((:convertDoubleToP32, SoftPositPath), Posit32, (Floa
 Posit8(x::Float16) = ccall((:convertDoubleToP8, SoftPositPath), Posit8, (Float64,),Float64(x))
 Posit16(x::Float16) = ccall((:convertDoubleToP16, SoftPositPath), Posit16, (Float64,),Float64(x))
 Posit32(x::Float16) = ccall((:convertDoubleToP32, SoftPositPath), Posit32, (Float64,),Float64(x))
+
+# direct conversion from hexadecimal or binary
+castP8(x::UInt8) = reinterpret(Posit8,x)
+castP16(x::UInt16) = reinterpret(Posit16,x)
+castP32(x::UInt32) = reinterpret(Posit32,x)

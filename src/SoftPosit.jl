@@ -11,7 +11,6 @@ import Base: Float64, Float32, Float16, Int32, Int64,
 const SoftPositPath = "/home/kloewer/git/SoftPosit/build/Linux-x86_64-GCC/softposit.so"
 
 include("typedef.jl")
-include("conversion.jl")
 include("conversionFloatToPosit.jl")
 include("conversionPositToFloat.jl")
 include("conversionPositToPosit.jl")

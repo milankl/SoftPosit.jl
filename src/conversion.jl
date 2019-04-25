@@ -27,6 +27,25 @@ Posit8(x::UInt8) = reinterpret(Posit8,x)
 Posit16(x::UInt16) = reinterpret(Posit16,x)
 Posit32(x::UInt32) = reinterpret(Posit32,x)
 
+# fom Integer to Posit
+Posit8(x::Int64) = ccall((:i64_to_p8, SoftPositPath), Posit8, (Int64,),x)
+Posit8(x::Int32) = ccall((:i32_to_p8, SoftPositPath), Posit8, (Int32,),x)
+
+Posit16(x::Int64) = ccall((:i64_to_p16, SoftPositPath), Posit16, (Int64,),x)
+Posit16(x::Int32) = ccall((:i32_to_p16, SoftPositPath), Posit16, (Int32,),x)
+
+Posit32(x::Int64) = ccall((:i64_to_p32, SoftPositPath), Posit32, (Int64,),x)
+Posit32(x::Int32) = ccall((:i32_to_p32, SoftPositPath), Posit32, (Int32,),x)
+
+# from Posit to Integer
+Int64(x::Posit8) = ccall((:p8_to_i64, SoftPositPath), Int64, (Posit8,),x)
+Int64(x::Posit16) = ccall((:p16_to_i64, SoftPositPath), Int64, (Posit16,),x)
+Int64(x::Posit32) = ccall((:p32_to_i64, SoftPositPath), Int64, (Posit32,),x)
+
+Int32(x::Posit8) = ccall((:p8_to_i32, SoftPositPath), Int32, (Posit8,),x)
+Int32(x::Posit16) = ccall((:p16_to_i32, SoftPositPath), Int32, (Posit16,),x)
+Int32(x::Posit32) = ccall((:p32_to_i32, SoftPositPath), Int32, (Posit32,),x)
+
 # round to nearest ties to even
 round(x::Posit8) = ccall((:p8_roundToInt, SoftPositPath), Posit8, (Posit8,),x)
 round(x::Posit16) = ccall((:p16_roundToInt, SoftPositPath), Posit16, (Posit16,),x)

@@ -10,6 +10,3 @@ primitive type Posit32 <: AbstractPosit 32 end
 #primitive type Posit8_2 <: AbstractPosit 32 end
 #primitive type Posit16_2 <: AbstractPosit 32 end
 #primitive type Posit32_2 <: AbstractPosit 32 end
-
-# SoftPositPath
-const SoftPositPath = "/home/kloewer/git/SoftPosit/build/Linux-x86_64-GCC/softposit.so"

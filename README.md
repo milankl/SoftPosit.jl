@@ -1,5 +1,5 @@
 # SoftPosit.jl
-Julia datatypes for the C-based SoftPosit library - a posit arithmetic emulator.
+Julia types for the C-based SoftPosit library - a posit arithmetic emulator.
 
 description to follow.
 

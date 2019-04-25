@@ -53,7 +53,7 @@ Some comparisons are implemented as well
     julia> p1 > p2
     true
 
-And simple linear Algebra
+And simple linear Algebra works effortless thanks to Julia
     
     julia> A = Posit32.(randn(5,5)); b = Posit32.(randn(5));
 

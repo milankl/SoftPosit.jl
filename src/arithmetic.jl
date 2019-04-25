@@ -24,18 +24,18 @@ sqrt(x::Posit16) = ccall((:p16_sqrt, SoftPositPath), Posit16, (Posit16,),x)
 sqrt(x::Posit32) = ccall((:p32_sqrt, SoftPositPath), Posit32, (Posit32,),x)
 
 # Unary minus (multiply by posit -1)
--(x::Posit8) = x*castP8(0xc0)
--(x::Posit16) = x*castP16(0xc000)
--(x::Posit32) = x*castP32(0xc0000000)
+-(x::Posit8) = x*Posit8(0xc0)
+-(x::Posit16) = x*Posit16(0xc000)
+-(x::Posit32) = x*Posit32(0xc0000000)
 
 # literal zero and one (via reinterpretation of hexadecimal)
-zero(::Posit8) = castP8(0x00)
-zero(::Posit16) = castP16(0x0000)
-zero(::Posit32) = castP32(0x00000000)
+zero(::Posit8) = Posit8(0x00)
+zero(::Posit16) = Posit16(0x0000)
+zero(::Posit32) = Posit32(0x00000000)
 
-one(::Posit8) = castP8(0x40)
-one(::Posit16) = castP16(0x4000)
-one(::Posit32) = castP32(0x40000000)
+one(::Posit8) = Posit8(0x40)
+one(::Posit16) = Posit16(0x4000)
+one(::Posit32) = Posit32(0x40000000)
 
 # comparison
 <(x::Posit8,y::Posit8) = ccall((:p8_lt, SoftPositPath), Bool, (Posit8,Posit8),x,y)

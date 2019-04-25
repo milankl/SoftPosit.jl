@@ -23,6 +23,19 @@ Posit16(x::Float16) = ccall((:convertDoubleToP16, SoftPositPath), Posit16, (Floa
 Posit32(x::Float16) = ccall((:convertDoubleToP32, SoftPositPath), Posit32, (Float64,),Float64(x))
 
 # direct conversion from hexadecimal or binary
-castP8(x::UInt8) = reinterpret(Posit8,x)
-castP16(x::UInt16) = reinterpret(Posit16,x)
-castP32(x::UInt32) = reinterpret(Posit32,x)
+Posit8(x::UInt8) = reinterpret(Posit8,x)
+Posit16(x::UInt16) = reinterpret(Posit16,x)
+Posit32(x::UInt32) = reinterpret(Posit32,x)
+
+# round to nearest ties to even
+round(x::Posit8) = ccall((:p8_roundToInt, SoftPositPath), Posit8, (Posit8,),x)
+round(x::Posit16) = ccall((:p16_roundToInt, SoftPositPath), Posit16, (Posit16,),x)
+round(x::Posit32) = ccall((:p32_roundToInt, SoftPositPath), Posit32, (Posit32,),x)
+
+# conversion between Posit8, Posit16 and Posit32
+Posit8(x::Posit16) = ccall((:p16_to_p8, SoftPositPath), Posit8, (Posit16,),x)
+Posit32(x::Posit16) = ccall((:p16_to_p32, SoftPositPath), Posit32, (Posit16,),x)
+Posit8(x::Posit32) = ccall((:p32_to_p8, SoftPositPath), Posit8, (Posit32,),x)
+Posit16(x::Posit32) = ccall((:p32_to_p16, SoftPositPath), Posit16, (Posit32,),x)
+Posit16(x::Posit8) = ccall((:p8_to_p16, SoftPositPath), Posit16, (Posit8,),x)
+Posit32(x::Posit8) = ccall((:p8_to_p32, SoftPositPath), Posit32, (Posit8,),x)

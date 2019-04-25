@@ -12,6 +12,12 @@ const SoftPositPath = "/home/kloewer/git/SoftPosit/build/Linux-x86_64-GCC/softpo
 
 include("typedef.jl")
 include("conversion.jl")
+include("conversionFloatToPosit.jl")
+include("conversionPositToFloat.jl")
+include("conversionPositToPosit.jl")
+include("conversionIntToPosit.jl")
+include("conversionPositToInt.jl")
+include("conversionHexBinToPosit.jl")
 include("arithmetic.jl")
 include("comparison.jl")
 include("constants.jl")

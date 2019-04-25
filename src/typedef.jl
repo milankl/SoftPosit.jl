@@ -5,8 +5,17 @@ primitive type Posit8 <: AbstractPosit 8 end
 primitive type Posit16 <: AbstractPosit 16 end
 primitive type Posit32 <: AbstractPosit 32 end
 
-#TODO
+# Posits with one exponent bits (always stored as 32bit)
+primitive type Posit8_1 <: AbstractPosit 32 end
+primitive type Posit16_1 <: AbstractPosit 32 end
+primitive type Posit24_1 <: AbstractPosit 32 end
+
 # Posits with two exponent bits (always stored as 32bit)
-#primitive type Posit8_2 <: AbstractPosit 32 end
-#primitive type Posit16_2 <: AbstractPosit 32 end
-#primitive type Posit32_2 <: AbstractPosit 32 end
+primitive type Posit8_2 <: AbstractPosit 32 end
+primitive type Posit16_2 <: AbstractPosit 32 end
+primitive type Posit24_2 <: AbstractPosit 32 end
+
+# type unions
+Float16or32 = Union{Float16,Float32}
+Posit_1 = Union{Posit8_1,Posit16_1,Posit24_1}
+Posit_2 = Union{Posit8_2,Posit16_2,Posit24_2}

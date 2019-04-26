@@ -1,7 +1,6 @@
 # module SoftPosit
 #
-# export AbstractPosit, Posit8, Posit16, Posit32,
-#     castP8, castP16, castP32
+# export AbstractPosit, Posit8, Posit16, Posit32
 
 import Base: Float64, Float32, Float16, Int32, Int64,
     (+), (-), (*), (/), (<), (<=), (==), sqrt,

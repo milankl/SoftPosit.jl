@@ -6,13 +6,13 @@ round(x::Posit32) = ccall((:p32_roundToInt, SoftPositPath), Posit32, (Posit32,),
 # for Posits with 1 exponent bit
 for T in (:Posit8_1, :Posit16_1, :Posit24_1)
     @eval begin
-        round(::$T) =  ccall((:pX1_roundToInt, SoftPositPath), $T, ($T,),x)
+        round(x::$T) =  ccall((:pX1_roundToInt, SoftPositPath), $T, ($T,),x)
     end
 end
 
 # for Posits with 1 exponent bit
 for T in (:Posit8_2, :Posit16_2, :Posit24_2)
     @eval begin
-        round(::$T) =  ccall((:pX2_roundToInt, SoftPositPath), $T, ($T,),x)
+        round(x::$T) =  ccall((:pX2_roundToInt, SoftPositPath), $T, ($T,),x)
     end
 end

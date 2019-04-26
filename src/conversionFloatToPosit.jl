@@ -8,10 +8,15 @@ Posit8(x::T where {T <: Float16or32}) = Posit8(Float64(x))
 Posit16(x::T where {T <: Float16or32}) = Posit16(Float64(x))
 Posit32(x::T where {T <: Float16or32}) = Posit32(Float64(x))
 
-# from Float64 to Posit_1
-Posit8_1(x::Float64) = ccall((:convertDoubleToPX1, SoftPositPath), Posit8_1, (Float64,Int64),x,8)
-Posit16_1(x::Float64) = ccall((:convertDoubleToPX1, SoftPositPath), Posit16_1, (Float64,Int64),x,16)
-Posit24_1(x::Float64) = ccall((:convertDoubleToPX1, SoftPositPath), Posit24_1, (Float64,Int64),x,24)
+# from Float64 to Posit_1 (convertDoubleToPX1 currently not available)
+# Posit8_1(x::Float64) = ccall((:convertDoubleToPX1, SoftPositPath), Posit8_1, (Float64,Int64),x,8)
+# Posit16_1(x::Float64) = ccall((:convertDoubleToPX1, SoftPositPath), Posit16_1, (Float64,Int64),x,16)
+# Posit24_1(x::Float64) = ccall((:convertDoubleToPX1, SoftPositPath), Posit24_1, (Float64,Int64),x,24)
+
+# use detour
+Posit8_1(x::Float64) = Posit8_1(Posit32(x))
+Posit16_1(x::Float64) = Posit16_1(Posit32(x))
+Posit24_1(x::Float64) = Posit24_1(Posit32(x))
 
 # from Float32/16 to Posit_1
 Posit8_1(x::T where {T <: Float16or32}) = Posit8_1(Float64(x))

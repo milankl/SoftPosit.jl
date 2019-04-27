@@ -5,12 +5,15 @@ Posit numbers are an alternative to floating-point numbers. Posits extend floats
 
 SoftPosit.jl emulates the following Posit number formats Posit(n,es), with n number of bits including es exponent bits
 
-    Posit(8,0), Posit(8,1), Posit(8,2),
-    Posit(16,0), Posit(16,1), Posit(16,2),
-    Posit(24,1), Posit(24,2),
-    Posit(32,2)
-  
-for conversions between Integers and Floats and basic arithmetic operations +,-,*,/,sqrt
+    Posit(8,0), Posit(16,1), Posit(32,2)
+    
+as primitive types called Posit8, Posit16, Posit32 following the draft standard (https://posithub.org/docs/posit_standard.pdf). Additionally, the following off-standard formats are defined as primitive types, which are internally stored as 32bit (the remaining bits are kept as zeros)
+
+    Posit(8,1), Posit(8,2), Posit(16,1), Posit(16,2), Posit(24,1), Posit(24,2)
+   
+called Posit8_1, Posit8_2, Posit16_1, Posit16_2, Posit24_1, Posit24_2.
+
+For all types conversions between Integers and Floats and basic arithmetic operations +,-,*,/,sqrt are defined.
 
 # Examples
 
@@ -67,7 +70,7 @@ And simple linear Algebra works effortless thanks to Julia
   
 # Requires
 
-SoftPosit C library written by Cerlane Leong (https://gitlab.com/cerlane/SoftPosit). Please install with the julia option for shared libraries.
+SoftPosit C library written by Cerlane Leong (https://gitlab.com/cerlane/SoftPosit). Please install with the julia option for shared libraries. (See https://docs.julialang.org/en/v1/manual/calling-c-and-fortran-code/index.html)
 
 # Usage
 

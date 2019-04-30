@@ -1,5 +1,6 @@
 # SoftPosit.jl
-Julia types for the C-based SoftPosit library - a posit arithmetic emulator.
+
+Julia types for the C-based [SoftPosit](https://gitlab.com/cerlane/SoftPosit) library by Cerlane Leong - a posit arithmetic emulator.
 
 Posit numbers are an alternative to floating-point numbers. Posits extend floats by introducing regime bits, that allow for a higher precision around one, yet a wide dynamic range of representable numbers. For further information see https://posithub.org
 
@@ -67,11 +68,3 @@ And simple linear Algebra works effortless thanks to Julia
       Posit32(0x35921aed)
       Posit32(0xadf72b9d)   
       Posit32(0x545d8cee)
-  
-# Requires
-
-SoftPosit C library written by Cerlane Leong (https://gitlab.com/cerlane/SoftPosit). Please install with the julia option for shared libraries. (See https://docs.julialang.org/en/v1/manual/calling-c-and-fortran-code/index.html)
-
-# Usage
-
-src/SoftPosit.jl contains a constant SoftPositPath, set to the path of the compiled C library (where the softposit.so is located). Currently, just do an include("/path/to/SoftPosit.jl/src/SoftPosit.jl") to have the Posit types available. (Will be converted to a proper module soon).

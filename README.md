@@ -41,7 +41,7 @@ Posit bit encodings can be visualized with
     julia> bitstring(Posit32(1.23))
     "01000001110101110000101000111101"
 
-Basic arithmetic operations are overloaded
+Basic arithmetic operations are "overloaded" (Thanks to Julia's multiple dispatch additional methods for the same functions are defined)
 
     julia> p1,p2,p3 = Posit8(1.0),Posit8(2.0),Posit8(0.5)
     (Posit8(0x40), Posit8(0x60), Posit8(0x20))

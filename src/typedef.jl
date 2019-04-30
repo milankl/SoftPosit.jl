@@ -1,4 +1,4 @@
-abstract type AbstractPosit <: Real end
+abstract type AbstractPosit <: AbstractFloat end
 
 # Posit8 with 0 exponent bits, Posit16 with 1 and Posit32 with 2
 primitive type Posit8 <: AbstractPosit 8 end

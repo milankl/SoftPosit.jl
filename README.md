@@ -1,23 +1,23 @@
 # SoftPosit.jl
-Julia types for the C-based SoftPosit library - a posit arithmetic emulator.
+[Julia](https://julialang.org/) types for the C-based [SoftPosit](https://gitlab.com/cerlane/SoftPosit) library - a posit arithmetic emulator.
 
 Posit numbers are an alternative to floating-point numbers. Posits extend floats by introducing regime bits, that allow for a higher precision around one, yet a wide dynamic range of representable numbers. For further information see https://posithub.org
 
-SoftPosit.jl emulates the following Posit number formats Posit(n,es), with n number of bits including es exponent bits
+SoftPosit.jl emulates the following Posit number formats `Posit(n,es)`, with `n` number of bits including `es` exponent bits
 
     Posit(8,0), Posit(16,1), Posit(32,2)
     
-as primitive types called Posit8, Posit16, Posit32 following the draft standard (https://posithub.org/docs/posit_standard.pdf). Additionally, the following off-standard formats are defined as primitive types, which are internally stored as 32bit (the remaining bits are kept as zeros)
+as primitive types called `Posit8`, `Posit16`, `Posit32` following the draft standard (https://posithub.org/docs/posit_standard.pdf). Additionally, the following off-standard formats are defined as primitive types, which are internally stored as 32bit (the remaining bits are kept as zeros)
 
     Posit(8,1), Posit(8,2), Posit(16,1), Posit(16,2), Posit(24,1), Posit(24,2)
    
-called Posit8_1, Posit8_2, Posit16_1, Posit16_2, Posit24_1, Posit24_2.
+called `Posit8_1`, `Posit8_2`, `Posit16_1`, `Posit16_2`, `Posit24_1`, `Posit24_2`.
 
-For all types conversions between Integers and Floats and basic arithmetic operations +,-,*,/,sqrt are defined.
+For all types conversions between Integers and Floats and basic arithmetic operations `+`, `-`, `*`, `/` and `sqrt` are defined.
 
 # Examples
 
-Conversion to and from Float64 (Float32,Float16 work too)
+Conversion to and from `Float64` (`Float32` and `Float16` work too)
 
     julia> p = Posit16(16.0)
     Posit16(0x7000)
@@ -56,7 +56,7 @@ Some comparisons are implemented as well
     julia> p1 > p2
     true
 
-And simple linear Algebra works effortless thanks to Julia
+And simple linear algebra works effortlessly thanks to Julia
     
     julia> A = Posit32.(randn(5,5)); b = Posit32.(randn(5));
 
@@ -70,8 +70,8 @@ And simple linear Algebra works effortless thanks to Julia
   
 # Requires
 
-SoftPosit C library written by Cerlane Leong (https://gitlab.com/cerlane/SoftPosit). Please install with the julia option for shared libraries. (See https://docs.julialang.org/en/v1/manual/calling-c-and-fortran-code/index.html)
+SoftPosit C library written by Cerlane Leong (https://gitlab.com/cerlane/SoftPosit). Please install with the Julia option for shared libraries. (See https://docs.julialang.org/en/v1/manual/calling-c-and-fortran-code/index.html)
 
 # Usage
 
-src/SoftPosit.jl contains a constant SoftPositPath, set to the path of the compiled C library (where the softposit.so is located). Currently, just do an include("/path/to/SoftPosit.jl/src/SoftPosit.jl") to have the Posit types available. (Will be converted to a proper module soon).
+`src/SoftPosit.jl` contains a constant `SoftPositPath`, set to the path of the compiled C library (where the `softposit.so` is located). Currently, just do an `include("/path/to/SoftPosit.jl/src/SoftPosit.jl")` to have the Posit types available. (Will be converted to a proper module soon).

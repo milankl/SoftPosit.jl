@@ -27,3 +27,25 @@ Posit24_1(x::Int32) = ccall((:i32_to_pX1, SoftPositPath), Posit24_1, (Int32,Int6
 Posit8_2(x::Int32) = ccall((:i32_to_pX2, SoftPositPath), Posit8_2, (Int32,Int64),x,8)
 Posit16_2(x::Int32) = ccall((:i32_to_pX2, SoftPositPath), Posit16_2, (Int32,Int64),x,16)
 Posit24_2(x::Int32) = ccall((:i32_to_pX2, SoftPositPath), Posit24_2, (Int32,Int64),x,24)
+
+# promotion
+promote_rule(::Type{Int64},::Type{Posit32}) = Posit32
+promote_rule(::Type{Int32},::Type{Posit32}) = Posit32
+promote_rule(::Type{Int64},::Type{Posit16}) = Posit16
+promote_rule(::Type{Int32},::Type{Posit16}) = Posit16
+promote_rule(::Type{Int64},::Type{Posit8}) = Posit8
+promote_rule(::Type{Int32},::Type{Posit8}) = Posit8
+
+promote_rule(::Type{Int64},::Type{Posit24_1}) = Posit32
+promote_rule(::Type{Int32},::Type{Posit24_1}) = Posit32
+promote_rule(::Type{Int64},::Type{Posit16_1}) = Posit16
+promote_rule(::Type{Int32},::Type{Posit16_1}) = Posit16
+promote_rule(::Type{Int64},::Type{Posit8_1}) = Posit8
+promote_rule(::Type{Int32},::Type{Posit8_1}) = Posit8
+
+promote_rule(::Type{Int64},::Type{Posit24_2}) = Posit32
+promote_rule(::Type{Int32},::Type{Posit24_2}) = Posit32
+promote_rule(::Type{Int64},::Type{Posit16_2}) = Posit16
+promote_rule(::Type{Int32},::Type{Posit16_2}) = Posit16
+promote_rule(::Type{Int64},::Type{Posit8_2}) = Posit8
+promote_rule(::Type{Int32},::Type{Posit8_2}) = Posit8

@@ -1,62 +1,39 @@
 # literal zero and one (via reinterpretation of hexadecimal)
-# maxpos: largest representable real
-# minpos: smallest representable number larger than 0
-# minneg: smallest representable real
-# maxneg: largest representable number smaller than 0
+# floatmax, floatmin
 
-for T in (:Posit8, :Posit8_1, :Posit8_2)
-    @eval begin
-        one(::$T) = $T(0x40)
-        zero(::$T) = $T(0x00)
-        maxpos(::$T) = $T(0x7f)
-        minpos(::$T) = $T(0x01)
-        minneg(::$T) = $T(0x81)
-        maxneg(::$T) = $T(0xff)
+one(::Type{T}) where {T<:PositAll8} = T(0x40)
+zero(::Type{T}) where {T<:PositAll8} = T(0x00)
+floatmax(::Type{T}) where {T<:PositAll8} = T(0x7f)
+floatmin(::Type{T}) where {T<:PositAll8} = T(0x01)
+-(x::T) where {T<:PositAll8} = x*T(0xc0)
 
-        # unary minus
-        -(x::$T) = x*$T(0xc0)
-    end
-end
+one(::Type{T}) where {T<:PositAll16} = T(0x4000)
+zero(::Type{T}) where {T<:PositAll16} = T(0x0000)
+floatmax(::Type{T}) where {T<:PositAll16} = T(0x7fff)
+floatmin(::Type{T}) where {T<:PositAll16} = T(0x0001)
+-(x::T) where {T<:PositAll16} = x*T(0xc000)
 
-for T in (:Posit16, :Posit16_1, :Posit16_2)
-    @eval begin
-        one(::$T) = $T(0x4000)
-        zero(::$T) = $T(0x0000)
-        maxpos(::$T) = $T(0x7fff)
-        minpos(::$T) = $T(0x0001)
-        minneg(::$T) = $T(0x8001)
-        maxneg(::$T) = $T(0xffff)
+one(::Type{T}) where {T<:PositAll24} = T(0x4000_0000)
+zero(::Type{T}) where {T<:PositAll24} = T(0x0000_0000)
+floatmax(::Type{T}) where {T<:PositAll24} = T(0x7fff_ff00)
+floatmin(::Type{T}) where {T<:PositAll24} = T(0x0000_0100)
+-(x::T) where {T<:PositAll24} = x*T(0xc000_0000)
 
-        # unary minus
-        -(x::$T) = x*$T(0xc000)
-    end
-end
+one(::Type{Posit32}) = Posit32(0x4000_0000)
+zero(::Type{Posit32}) = Posit32(0x0000_0000)
+floatmax(::Type{Posit32}) = Posit32(0x7fff_ffff)
+floatmin(::Type{Posit32}) = Posit32(0x0000_0001)
+-(x::Posit32) = x*Posit32(0xc000_0000)
 
-for T in (:Posit32,)
-    @eval begin
-        one(::$T) = $T(0x40000000)
-        zero(::$T) = $T(0x00000000)
-        maxpos(::$T) = $T(0x7fffffff)
-        minpos(::$T) = $T(0x00000001)
-        minneg(::$T) = $T(0x80000001)
-        maxneg(::$T) = $T(0xffffffff)
+eps(::Type{Posit8}) = Posit8(0x02)
+eps(::Type{Posit16}) = Posit16(0x0100)
+eps(::Type{Posit32}) = Posit32(0x00a0_0000)
 
-        # unary minus
-        -(x::$T) = x*$T(0xc0000000)
-    end
-end
+#TODO remove subtraction once pX1_sub is available in the C version
+eps(::Type{Posit8_1}) = Posit8_1(0x41) - Posit8_1(0x40)
+eps(::Type{Posit16_1}) = Posit16_1(0x4001) - Posit16_1(0x4000)
+eps(::Type{Posit24_1}) = Posit24_1(0x4000_01) - Posit24_1(0x4000_00)
 
-# special case for Posit24_2 - 24bits plus 8bits that are always 0
-for T in (:Posit24_1, :Posit24_2)
-    @eval begin
-        one(::$T) = $T(0x40000000)
-        zero(::$T) = $T(0x00000000)
-        maxpos(::$T) = $T(0x7fffff00)
-        minpos(::$T) = $T(0x00000100)
-        minneg(::$T) = $T(0x80000100)
-        maxneg(::$T) = $T(0xffffff00)
-
-        # unary minus
-        -(x::$T) = x*$T(0xc0000000)
-    end
-end
+eps(::Type{Posit8_2}) = Posit8_2(0x2800_0000)
+eps(::Type{Posit16_2}) = Posit16_2(0x0a00_0000)
+eps(::Type{Posit24_2}) = Posit24_2(0x0280_0000)

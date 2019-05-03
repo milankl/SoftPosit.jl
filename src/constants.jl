@@ -34,29 +34,29 @@ end
 
 for T in (:Posit32,)
     @eval begin
-        one(::$T) = $T(0x40000000)
-        zero(::$T) = $T(0x00000000)
-        maxpos(::$T) = $T(0x7fffffff)
-        minpos(::$T) = $T(0x00000001)
-        minneg(::$T) = $T(0x80000001)
-        maxneg(::$T) = $T(0xffffffff)
+        one(::$T) = $T(0x4000_0000)
+        zero(::$T) = $T(0x0000_0000)
+        maxpos(::$T) = $T(0x7fff_ffff)
+        minpos(::$T) = $T(0x0000_0001)
+        minneg(::$T) = $T(0x8000_0001)
+        maxneg(::$T) = $T(0xffff_ffff)
 
         # unary minus
-        -(x::$T) = x*$T(0xc0000000)
+        -(x::$T) = x*$T(0xc000_0000)
     end
 end
 
 # special case for Posit24_2 - 24bits plus 8bits that are always 0
 for T in (:Posit24_1, :Posit24_2)
     @eval begin
-        one(::$T) = $T(0x40000000)
-        zero(::$T) = $T(0x00000000)
-        maxpos(::$T) = $T(0x7fffff00)
-        minpos(::$T) = $T(0x00000100)
-        minneg(::$T) = $T(0x80000100)
-        maxneg(::$T) = $T(0xffffff00)
+        one(::$T) = $T(0x4000_0000)
+        zero(::$T) = $T(0x0000_0000)
+        maxpos(::$T) = $T(0x7fff_ff00)
+        minpos(::$T) = $T(0x0000_0100)
+        minneg(::$T) = $T(0x8000_0100)
+        maxneg(::$T) = $T(0xffff_ff00)
 
         # unary minus
-        -(x::$T) = x*$T(0xc0000000)
+        -(x::$T) = x*$T(0xc000_0000)
     end
 end

@@ -7,7 +7,7 @@ export AbstractPosit, Posit8, Posit16, Posit32,
 
 import Base: Float64, Float32, Float16, Int32, Int64,
     (+), (-), (*), (/), (<), (<=), (==), sqrt,
-    bitstring, round, one, zero, promote_rule
+    bitstring, round, one, zero, promote_rule, eps
 
 # Load in `deps.jl`, complaining if it does not exist
 const depsjl_path = joinpath(@__DIR__, "..", "deps", "deps.jl")

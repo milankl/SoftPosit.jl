@@ -8,10 +8,8 @@ for T in (:Posit8, :Posit8_1, :Posit8_2)
     @eval begin
         one(::$T) = $T(0x40)
         zero(::$T) = $T(0x00)
-        maxpos(::$T) = $T(0x7f)
-        minpos(::$T) = $T(0x01)
-        minneg(::$T) = $T(0x81)
-        maxneg(::$T) = $T(0xff)
+        floatmax(::Type{$T}) = $T(0x7f)
+        floatmin(::Type{$T}) = $T(0x01)
 
         # unary minus
         -(x::$T) = x*$T(0xc0)
@@ -22,10 +20,8 @@ for T in (:Posit16, :Posit16_1, :Posit16_2)
     @eval begin
         one(::$T) = $T(0x4000)
         zero(::$T) = $T(0x0000)
-        maxpos(::$T) = $T(0x7fff)
-        minpos(::$T) = $T(0x0001)
-        minneg(::$T) = $T(0x8001)
-        maxneg(::$T) = $T(0xffff)
+        floatmax(::Type{$T}) = $T(0x7fff)
+        floatmin(::Type{$T}) = $T(0x0001)
 
         # unary minus
         -(x::$T) = x*$T(0xc000)
@@ -36,10 +32,8 @@ for T in (:Posit32,)
     @eval begin
         one(::$T) = $T(0x4000_0000)
         zero(::$T) = $T(0x0000_0000)
-        maxpos(::$T) = $T(0x7fff_ffff)
-        minpos(::$T) = $T(0x0000_0001)
-        minneg(::$T) = $T(0x8000_0001)
-        maxneg(::$T) = $T(0xffff_ffff)
+        floatmax(::Type{$T}) = $T(0x7fff_ffff)
+        floatmin(::Type{$T}) = $T(0x0000_0001)
 
         # unary minus
         -(x::$T) = x*$T(0xc000_0000)
@@ -51,10 +45,8 @@ for T in (:Posit24_1, :Posit24_2)
     @eval begin
         one(::$T) = $T(0x4000_0000)
         zero(::$T) = $T(0x0000_0000)
-        maxpos(::$T) = $T(0x7fff_ff00)
-        minpos(::$T) = $T(0x0000_0100)
-        minneg(::$T) = $T(0x8000_0100)
-        maxneg(::$T) = $T(0xffff_ff00)
+        floatmax(::Type{$T}) = $T(0x7fff_ff00)
+        floatmin(::Type{$T}) = $T(0x0000_0100)
 
         # unary minus
         -(x::$T) = x*$T(0xc000_0000)

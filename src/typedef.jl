@@ -17,6 +17,9 @@ primitive type Posit24_2 <: AbstractPosit 32 end
 
 # type unions
 Float16or32 = Union{Float16,Float32}
+PositAll8 = Union{Posit8,Posit8_1,Posit8_2}
+PositAll16 = Union{Posit16,Posit16_1,Posit16_2}
+PositAll24 = Union{Posit24_1,Posit24_2}
 
 # off-standard types
 PositX1 = Union{Posit8_1,Posit16_1,Posit24_1}

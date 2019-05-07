@@ -42,6 +42,7 @@ notareal(::Type{T}) where {T<:PositAll8} = T(0x80)
 notareal(::Type{T}) where {T<:PositAll16} = T(0x8000)
 notareal(::Type{T}) where {T<:PositAll24} = T(0x8000_0000)
 notareal(::Type{Posit32}) = T(0x8000_0000)
+notareal(p::AbstractPosit) = notareal(typeof(p))
 
 signbit(p::Posit8) = signbit(reinterpret(Int8,p))
 signbit(p::Posit16) = signbit(reinterpret(Int16,p))

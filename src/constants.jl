@@ -37,3 +37,32 @@ eps(::Type{Posit24_1}) = Posit24_1(0x4000_01) - Posit24_1(0x4000_00)
 eps(::Type{Posit8_2}) = Posit8_2(0x2800_0000)
 eps(::Type{Posit16_2}) = Posit16_2(0x0a00_0000)
 eps(::Type{Posit24_2}) = Posit24_2(0x0280_0000)
+
+notareal(::Type{T}) where {T<:PositAll8} = T(0x80)
+notareal(::Type{T}) where {T<:PositAll16} = T(0x8000)
+notareal(::Type{T}) where {T<:PositAll24} = T(0x8000_0000)
+notareal(::Type{Posit32}) = T(0x8000_0000)
+
+signbit(p::Posit8) = signbit(reinterpret(Int8,p))
+signbit(p::Posit16) = signbit(reinterpret(Int16,p))
+signbit(p::Posit32) = signbit(reinterpret(Int32,p))
+
+signbit(p::Type{T}) where {T<:Union{PositX1,PositX2}} = signbit(reinterpret(Int32,p))
+
+isfinite(p::Type{T}) where {T<:AbstractPosit} = p != notareal(T)
+
+function sign(p::Type{T}) where {T <: AbstractPosit}
+    if ~signbit(p)  # positive and zero case
+        if iszero(p)
+            return zero(T)
+        else
+            return one(T)
+        end
+    else            # negative and infinity case
+        if ~isfinite(p)
+            return notareal(T)
+        else
+            return -one(T)
+        end
+    end
+end

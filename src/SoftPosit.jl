@@ -8,7 +8,8 @@ export AbstractPosit, Posit8, Posit16, Posit32,
 import Base: Float64, Float32, Float16, Int32, Int64,
     (+), (-), (*), (/), (<), (<=), (==), sqrt,
     bitstring, round, one, zero, promote_rule, eps,
-    floatmin, floatmax, signbit, sign, isfinite
+    floatmin, floatmax, signbit, sign, isfinite,
+    nextfloat, prevfloat
 
 # Load in `deps.jl`, complaining if it does not exist
 const depsjl_path = joinpath(@__DIR__, "..", "deps", "deps.jl")
@@ -30,5 +31,6 @@ include("comparison.jl")
 include("constants.jl")
 include("round.jl")
 include("print.jl")
+include("nextprevfloat.jl")
 
 end

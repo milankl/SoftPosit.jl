@@ -27,8 +27,7 @@ function bitstring(x::AbstractPosit,mode::String)
         # concatenate the string
         if n >= length(s)-2     # only exponent bits (possibly including terminating bit)
             return "$(s[1]) $(s[2:end])"
-        elseif n >= length(s)-ne-3
-            #TODO something is wrong here
+        elseif n > length(s)-ne-3
             return "$(s[1]) $(s[2:2+n]) $(s[2+n+1:end])"
         else
             if ne == 0

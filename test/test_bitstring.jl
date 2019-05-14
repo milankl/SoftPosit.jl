@@ -1,6 +1,6 @@
 @testset "Bitstring" begin
 
-    @test_set for f in (-64.0,-1.0,-1e-2,1e-1,1.0,64.0)
+    @testset for f in (-64.0,-1.0,-1e-2,1e-1,1.0,64.0)
         for T in (Posit8,Posit8_2)
             T(f) == T(parse(UInt8,bitstring(T(f)),base=2))
         end

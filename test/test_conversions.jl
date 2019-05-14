@@ -26,7 +26,7 @@
     @test i == Int64(Posit32(i))
 
     # Boolean tests
-    @test_set for T in (Posit8,Posit16,Posit32)
+    @testset for T in (Posit8,Posit16,Posit32)
         T(x) == true*T(x)
         zero(T) == false*T(x)
         T(x)+one(T) == true + T(x)

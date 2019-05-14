@@ -24,4 +24,14 @@
     @test i == Int64(Posit8(i))
     @test i == Int64(Posit16(i))
     @test i == Int64(Posit32(i))
+
+    # Boolean tests
+    @testset for T in (Posit8,Posit16,Posit32)
+        T(x) == true*T(x)
+        zero(T) == false*T(x)
+        T(x)+one(T) == true + T(x)
+        T(x) == false + T(x)
+        T(true) == one(T)
+        T(false) == zero(T)
+    end
 end

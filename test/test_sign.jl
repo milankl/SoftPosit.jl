@@ -6,7 +6,6 @@
         @test one(T) == sign(one(T))
         @test zero(T) == sign(zero(T))
         @test minusone(T) == sign(minusone(T))
-        #TODO somehow calls the wrong sign function
-        #@test notareal(T) == sign(notareal(T))
+        @test notareal(T) == sign(notareal(T))
     end
 end

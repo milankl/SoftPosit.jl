@@ -46,7 +46,7 @@ eps(::Type{Posit24_2}) = Posit24_2(0x0280_0000)
 notareal(::Type{T}) where {T<:PositAll8} = T(0x80)
 notareal(::Type{T}) where {T<:PositAll16} = T(0x8000)
 notareal(::Type{T}) where {T<:PositAll24} = T(0x8000_0000)
-notareal(::Posit32) = Posit32(0x8000_0000)
+notareal(::Type{Posit32}) = Posit32(0x8000_0000)
 notareal(p::AbstractPosit) = notareal(typeof(p))
 
 signbit(p::Posit8) = signbit(reinterpret(Int8,p))
@@ -64,7 +64,6 @@ signbit(p::Posit24_1) = signbit(reinterpret(Int32,p))
 signbit(p::Posit8_2) = signbit(reinterpret(Int32,p))
 signbit(p::Posit16_2) = signbit(reinterpret(Int32,p))
 signbit(p::Posit24_2) = signbit(reinterpret(Int32,p))
-
 
 isfinite(p::Type{T}) where {T<:AbstractPosit} = p != notareal(T)
 

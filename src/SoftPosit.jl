@@ -32,5 +32,6 @@ include("constants.jl")
 include("round.jl")
 include("print.jl")
 include("nextprevfloat.jl")
+include("eps.jl")
 
 end

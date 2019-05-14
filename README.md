@@ -68,3 +68,11 @@ And simple linear algebra works effortlessly thanks to Julia
       Posit32(0x35921aed)
       Posit32(0xadf72b9d)   
       Posit32(0x545d8cee)
+
+# Usage
+
+In the package manager do
+
+    add https://www.github.com/milankl/SoftPosit.jl
+ 
+and then simply `using SoftPosit` which enables all of the functionality above.

@@ -16,3 +16,6 @@ for T in (:Posit8_2, :Posit16_2, :Posit24_2)
         round(x::$T) =  ccall((:pX2_roundToInt, SoftPositPath), $T, ($T,),x)
     end
 end
+
+# round(x::T) where {T<:PositX1} =  ccall((:pX1_roundToInt, SoftPositPath), T, (T,),x)
+# round(x::T) where {T<:PositX2} =  ccall((:pX2_roundToInt, SoftPositPath), T, (T,),x)

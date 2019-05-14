@@ -20,6 +20,10 @@ for T in (:Posit8_1, :Posit16_1, :Posit24_1)
     end
 end
 
+# ==(x::T,y::T) where {T<:PositX1} = ccall((:pX1_eq, SoftPositPath), Bool, (T,T),x,y)
+# <=(x::T,y::T) where {T<:PositX1} = ccall((:pX1_le, SoftPositPath), Bool, (T,T),x,y)
+# <(x::T,y::T) where {T<:PositX1} = ccall((:pX1_lt, SoftPositPath), Bool, (T,T),x,y)
+
 # for Posits with 2 exponent bits
 for T in (:Posit8_2, :Posit16_2, :Posit24_2)
     @eval begin

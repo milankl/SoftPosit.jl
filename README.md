@@ -14,7 +14,7 @@ as primitive types called `Posit8`, `Posit16`, `Posit32` following the [draft st
    
 called `Posit8_1`, `Posit8_2`, `Posit16_1`, `Posit16_2`, `Posit24_1`, `Posit24_2`.
 
-For all types conversions between Integers and Floats and basic arithmetic operations `+`, `-`, `*`, `/` and `sqrt` are defined.
+For all the types `Posit8, Posit16, Posit32, Posit8_2, Posit16_2, Posit24_2` conversions between Integers and Floats and basic arithmetic operations `+`, `-`, `*`, `/` and `sqrt` are defined. Unfortunately, `Posit8_1, Posit16_1, Posit24_1` are not yet fully supported by the underlying C library.
 
 # Examples
 

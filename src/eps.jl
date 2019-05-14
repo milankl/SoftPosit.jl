@@ -11,4 +11,4 @@ eps(::Type{Posit8_2}) = Posit8_2(0x2800_0000)
 eps(::Type{Posit16_2}) = Posit16_2(0x0a00_0000)
 eps(::Type{Posit24_2}) = Posit24_2(0x0280_0000)
 
-eps(p::AbstractPosit) == max(p-prevfloat(p),nextfloat(p)-p)
+eps(p::AbstractPosit) = max(p-prevfloat(p),nextfloat(p)-p)

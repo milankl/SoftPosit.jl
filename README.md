@@ -16,6 +16,8 @@ called `Posit8_1`, `Posit8_2`, `Posit16_1`, `Posit16_2`, `Posit24_1`, `Posit24_2
 
 For all the types `Posit8, Posit16, Posit32, Posit8_2, Posit16_2, Posit24_2` conversions between Integers and Floats and basic arithmetic operations `+`, `-`, `*`, `/` and `sqrt` are defined. Unfortunately, `Posit8_1, Posit16_1, Posit24_1` are not yet fully supported by the underlying C library.
 
+To support quires, `Quire8` and `Quire16` are implemented as 32 / 128bit types for fused multiply-add and fused multiply-subtract. See below for examples.
+
 # Examples
 
 Conversion to and from `Float64` (`Float32` and `Float16` work too)
@@ -68,6 +70,27 @@ And simple linear algebra works effortlessly thanks to Julia
       Posit32(0x35921aed)
       Posit32(0xadf72b9d)   
       Posit32(0x545d8cee)
+
+# Quire example
+
+Quires are initiliased with
+    
+    julia> q = zero(Quire8)
+    Quire8(0x00000000)
+
+Now adding the number 12x12 = 144 that in Posit8 would cause a saturation at 64 (maxpos) and subsequently subtracting 14x10=140 yields the correct result of 4.
+
+    julia> q = fma(q,Posit8(12),Posit8(12))
+    Quire8(0x00090000)
+
+    julia> q = fms(q,Posit8(14),Posit8(10))
+    Quire8(0x00004000)
+
+    julia> Posit8(q)
+    Posit8(0x70)
+
+    julia> Float64(ans)
+    4.0
 
 # Usage
 

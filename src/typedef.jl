@@ -44,9 +44,9 @@ PositEx1 = Union{Posit8_1,Posit16_1,Posit16,Posit24_1}
 PositEx2 = Union{Posit8_2,Posit16_2,Posit24_2,Posit32}
 
 # Quire type unions
-QuireAll8 = Union{Quire8,Quire8_1,Quire8_2}
-QuireAll16 = Union{Quire16,Quire16_1,Quire16_2}
-QuireAll24 = Union{Quire24_1,Quire24_2}
-
-QuireX1 = Union{Quire8_1,Quire16_1,Quire24_1}
-QuireX2 = Union{Quire8_2,Quire16_2,Quire24_2}
+# QuireAll8 = Union{Quire8,Quire8_1,Quire8_2}
+# QuireAll16 = Union{Quire16,Quire16_1,Quire16_2}
+# QuireAll24 = Union{Quire24_1,Quire24_2}
+#
+# QuireX1 = Union{Quire8_1,Quire16_1,Quire24_1}
+# QuireX2 = Union{Quire8_2,Quire16_2,Quire24_2}

@@ -1,15 +1,12 @@
-# initialise
-Quire8() = reinterpret(Quire8,0x0000_0000)
-Quire16() = reinterpret(Quire16,0x0000_0000_0000_0000_0000_0000_0000_0000)
-# Quire32() = reinterpret(Quire32,0x0000_0000_0000_0000_0000_0000_0000_0000
-#                                 0x0000_0000_0000_0000_0000_0000_0000_0000
-#                                 0x0000_0000_0000_0000_0000_0000_0000_0000
-#                                 0x0000_0000_0000_0000_0000_0000_0000_0000)
+# literal zero for initialisation
+zero(::Type{Quire8}) = Quire8(0x0000_0000)
+zero(::Type{Quire16}) = Quire16(0x0000_0000_0000_0000_0000_0000_0000_0000)
+#zero(::Type{Quire32}) = reinterpret(Quire32,0x00000000000000000000000000000000_00000000000000000000000000000000_00000000000000000000000000000000_00000000000000000000000000000000)
 
-# set quire to zero
-zero!(q::Quire8) = ccall((:q8_clr, SoftPositPath), Quire8, (Quire8,),q)
-zero!(q::Quire16) = ccall((:q16_clr, SoftPositPath), Quire16, (Quire16,),q)
-zero!(q::Quire32) = ccall((:q32_clr, SoftPositPath), Quire32, (Quire32,),q)
+# literal one
+one(::Type{Quire8}) = Quire8(0x00001000)
+one(::Type{Quire16}) = Quire16(0x01000000000000000000000000000000)
+#one(::Type{Quire32}) = Quire32(0x01000000000000000000000000000000)
 
 # Fused multiply-add q+b*c
 fma(q::Quire8,b::Posit8,c::Posit8) = ccall((:q8_fdp_add, SoftPositPath), Quire8, (Quire8,Posit8,Posit8),q,b,c)

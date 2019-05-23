@@ -1,7 +1,7 @@
 # literal zero for initialisation
 zero(::Type{Quire8}) = Quire8(0x0000_0000)
 zero(::Type{Quire16}) = Quire16(0x0000_0000_0000_0000_0000_0000_0000_0000)
-#zero(::Type{Quire32}) = reinterpret(Quire32,0x00000000000000000000000000000000_00000000000000000000000000000000_00000000000000000000000000000000_00000000000000000000000000000000)
+zero(::Type{Quire32}) = Base.zext_int(Quire32,0x0)
 
 # literal one
 one(::Type{Quire8}) = Quire8(0x00001000)

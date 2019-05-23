@@ -73,7 +73,7 @@ And simple linear algebra works effortlessly thanks to Julia
 
 # Quire example
 
-Quires are initialised with
+Quires are initialised with (same for `Quire16`,`Quire32`)
     
     julia> q = zero(Quire8)
     Quire8(0x00000000)

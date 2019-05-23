@@ -6,7 +6,7 @@ zero(::Type{Quire32}) = Base.zext_int(Quire32,0x0)
 # literal one
 one(::Type{Quire8}) = Quire8(0x00001000)
 one(::Type{Quire16}) = Quire16(0x01000000000000000000000000000000)
-#one(::Type{Quire32}) = Quire32(0x01000000000000000000000000000000)
+one(::Type{Quire32}) = fma(zero(Quire32),one(Posit32),one(Posit32))
 
 # Fused multiply-add q+b*c
 fma(q::Quire8,b::Posit8,c::Posit8) = ccall((:q8_fdp_add, SoftPositPath), Quire8, (Quire8,Posit8,Posit8),q,b,c)

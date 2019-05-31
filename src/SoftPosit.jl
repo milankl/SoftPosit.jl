@@ -14,11 +14,13 @@ import Base: Float64, Float32, Float16, Int32, Int64,
     exp, log, cos, sin, tan
 
 # Load in `deps.jl`, complaining if it does not exist
-const depsjl_path = joinpath(@__DIR__, "..", "deps", "deps.jl")
-if !isfile(depsjl_path)
-    error("SoftPosit not installed properly, run \"]build SoftPosit\", restart Julia and try again")
-end
-include(depsjl_path)
+# const depsjl_path = joinpath(@__DIR__, "..", "deps", "deps.jl")
+# if !isfile(depsjl_path)
+#     error("SoftPosit not installed properly, run \"]build SoftPosit\", restart Julia and try again")
+# end
+# include(depsjl_path)
+
+const SoftPositPath = "/home/kloewer/git/SoftPosit/build/Linux-x86_64-GCC/softposit.so"
 
 include("typedef.jl")
 include("conversionFloatToPosit.jl")

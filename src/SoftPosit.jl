@@ -36,5 +36,6 @@ include("print.jl")
 include("nextprevfloat.jl")
 include("eps.jl")
 include("quire.jl")
+include("explog_trigonometric.jl")
 
 end

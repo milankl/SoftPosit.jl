@@ -11,7 +11,7 @@ import Base: Float64, Float32, Float16, Int32, Int64,
     bitstring, round, one, zero, promote_rule, eps,
     floatmin, floatmax, signbit, sign, isfinite,
     nextfloat, prevfloat, fma,
-    exp, log, cos, sin, tan
+    exp, exp2, exp10, log, log2, log10, cos, sin, tan
 
 # Load in `deps.jl`, complaining if it does not exist
 const depsjl_path = joinpath(@__DIR__, "..", "deps", "deps.jl")

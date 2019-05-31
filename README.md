@@ -18,6 +18,8 @@ For all the types `Posit8, Posit16, Posit32, Posit8_2, Posit16_2, Posit24_2` con
 
 To support quires, `Quire8` and `Quire16` are implemented as 32 / 128bit types for fused multiply-add and fused multiply-subtract. See below for examples.
 
+Additional math functions like `exp`,`log`,`sin`,`cos`,`tan` are defined via conversion to `Float64` (no support yet of the C library) and therefore do not have error-free rounding.
+
 # Examples
 
 Conversion to and from `Float64` (`Float32` and `Float16` work too)

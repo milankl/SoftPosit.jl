@@ -10,7 +10,8 @@ import Base: Float64, Float32, Float16, Int32, Int64,
     (+), (-), (*), (/), (<), (<=), (==), sqrt,
     bitstring, round, one, zero, promote_rule, eps,
     floatmin, floatmax, signbit, sign, isfinite,
-    nextfloat, prevfloat, fma
+    nextfloat, prevfloat, fma,
+    exp, log, cos, sin, tan
 
 # Load in `deps.jl`, complaining if it does not exist
 const depsjl_path = joinpath(@__DIR__, "..", "deps", "deps.jl")
@@ -36,5 +37,6 @@ include("print.jl")
 include("nextprevfloat.jl")
 include("eps.jl")
 include("quire.jl")
+include("explog_trigonometric.jl")
 
 end

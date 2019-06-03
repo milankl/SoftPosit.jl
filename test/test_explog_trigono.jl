@@ -23,8 +23,8 @@
         @test cos(x) == cos(-x)
         @test -tan(x) == tan(-x)
 
-        # Euler Identity
-        # @test one(T) == abs(exp(im*T(1π)))
+        # Euler's Identity
+        @test one(T) == abs(exp(im*T(1π)))
 
         @test one(T) == exp(zero(T))
         @test T(16.0) == exp2(T(4.0))

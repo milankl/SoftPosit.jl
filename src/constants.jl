@@ -51,7 +51,7 @@ function sign(p::T) where {T <: AbstractPosit}
         if isfinite(p)  # negative
             return minusone(T)
         else            # infinity
-            return notareal(T)
+            return zero(T)
         end
     else                # positive and zero case
         if iszero(p)    # zero

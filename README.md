@@ -40,4 +40,4 @@ In the package manager do
 
     add https://www.github.com/milankl/SoftPosit.jl
  
-and then simply `using SoftPosit` which enables all of the functionality above.
+and then simply `using SoftPosit` which enables all of the functionality.

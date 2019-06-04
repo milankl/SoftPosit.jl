@@ -31,7 +31,7 @@ Conversion to and from `Float64` and computing a square root
     julia> Float64(sqrt(p))
     4.0
 
-for a comprehensive notebook covering all the functionality of SoftPosit.jl please read [softposit_examples.ipynb](https://www.github.com/milankl/SoftPosit.jl/docs/softposit_examples.ipynb)
+for a comprehensive notebook covering all the functionality of SoftPosit.jl please read [softposit_examples.ipynb](https://github.com/milankl/SoftPosit.jl/blob/master/docs/softposit_examples.ipynb)
 
 
 # Usage

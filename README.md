@@ -16,13 +16,11 @@ called `Posit8_1`, `Posit8_2`, `Posit16_1`, `Posit16_2`, `Posit24_1`, `Posit24_2
 
 For all the types `Posit8, Posit16, Posit32, Posit8_2, Posit16_2, Posit24_2` conversions between Integers and Floats and basic arithmetic operations `+`, `-`, `*`, `/` and `sqrt` are defined. Unfortunately, `Posit8_1, Posit16_1, Posit24_1` are not yet fully supported by the underlying C library.
 
-To support quires, `Quire8` and `Quire16` are implemented as 32 / 128bit types for fused multiply-add and fused multiply-subtract. See below for examples.
-
-Additional math functions like `exp`,`log`,`sin`,`cos`,`tan` are defined via conversion to `Float64` (no support yet of the C library) and therefore do not have error-free rounding.
+To support quires, `Quire8`, `Quire16` and `Quire32` are implemented as 32 / 128 / 512bit types for fused multiply-add and fused multiply-subtract. Additional math functions like `exp`,`log`,`sin`,`cos`,`tan` are defined via conversion to `Float64` (no support yet of the C library) and therefore do not have error-free rounding.
 
 # Examples
 
-Conversion to and from `Float64` (`Float32` and `Float16` work too)
+Conversion to and from `Float64` and computing a square root
 
     julia> p = Posit16(16.0)
     Posit16(0x7000)
@@ -33,66 +31,8 @@ Conversion to and from `Float64` (`Float32` and `Float16` work too)
     julia> Float64(sqrt(p))
     4.0
 
-or directly with hexadecimal or binary
+for a comprehensive notebook covering all the functionality of SoftPosit.jl please read [softposit_examples.ipynb](https://www.github.com/milankl/SoftPosit.jl/docs/softposit_examples.ipynb)
 
-    julia> Posit8(0b01001110)
-    Posit8(0x4e)
-
-    julia> Float64(Posit8(0x4e))
-    1.4375
-  
-Posit bit encodings can be visualized with
-
-    julia> bitstring(Posit32(1.23))
-    "01000001110101110000101000111101"
-
-Basic arithmetic operations are "overloaded" (Thanks to Julia's multiple dispatch, actually defined are additional methods for the same functions)
-
-    julia> p1,p2,p3 = Posit8(1.0),Posit8(2.0),Posit8(0.5)
-    (Posit8(0x40), Posit8(0x60), Posit8(0x20))
-
-    julia> p1+p2*p3
-    Posit8(0x60)
-
-Some comparisons are implemented as well
-
-    julia> p1 = Posit16_2(1); p2 = Posit16_2(-1);
-
-    julia> p1 > p2
-    true
-
-And simple linear algebra works effortlessly thanks to Julia
-    
-    julia> A = Posit32.(randn(5,5)); b = Posit32.(randn(5));
-
-    julia> A*b
-    5-element Array{Posit32,1}:
-      Posit32(0x302705c2)   
-      Posit32(0xb523cd90)   
-      Posit32(0x35921aed)
-      Posit32(0xadf72b9d)   
-      Posit32(0x545d8cee)
-
-# Quire example
-
-Quires are initialised with (same for `Quire16`,`Quire32`)
-    
-    julia> q = zero(Quire8)
-    Quire8(0x00000000)
-
-Now adding the number 12x12 = 144 that in Posit8 would cause a saturation at 64 (maxpos) and subsequently subtracting 14x10=140 yields the correct result of 4.
-
-    julia> q = fma(q,Posit8(12),Posit8(12))
-    Quire8(0x00090000)
-
-    julia> q = fms(q,Posit8(14),Posit8(10))
-    Quire8(0x00004000)
-
-    julia> Posit8(q)
-    Posit8(0x70)
-
-    julia> Float64(ans)
-    4.0
 
 # Usage
 

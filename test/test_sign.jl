@@ -7,6 +7,6 @@
         @test one(T) == sign(one(T))
         @test zero(T) == sign(zero(T))
         @test minusone(T) == sign(minusone(T))
-        @test notareal(T) == sign(notareal(T))
+        @test zero(T) == sign(notareal(T))
     end
 end

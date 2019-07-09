@@ -30,6 +30,26 @@ floatmax(::Type{Posit32}) = Posit32(0x7fff_ffff)
 floatmin(::Type{Posit32}) = Posit32(0x0000_0001)
 -(x::Posit32) = x*minusone(Posit32)
 
+# TODO
+# function -(x::Sonum8)
+#     if UInt8(x) == 0x00 || UInt8(x) == 0x80 # don't change sign for 0 and NaR
+#         return x
+#     else    # subtracting from 0x00 (two's complement def for neg)
+#         return Sonum8(0x00 - UInt8(x))
+#     end
+# end
+#
+# function -(x::Sonum16)
+#     if UInt16(x) == 0x0000 || UInt16(x) == 0x8000 # don't change sign for 0 and NaR
+#         return x
+#     else    # subtracting from 0x0000 (two's complement def for neg)
+#         return Sonum16(0x0000 - UInt16(x))
+#     end
+# end
+#
+# abs(x::Sonum8) = UInt8(x) > 0x80 ? Sonum8(0x00 - UInt8(x)) : x
+# abs(x::Sonum16) = UInt16(x) > 0x8000 ? Sonum8(0x0000 - UInt16(x)) : x
+
 # generalize also for objects of the type AbstractPosit
 minusone(p::AbstractPosit) = minusone(typeof(p))
 

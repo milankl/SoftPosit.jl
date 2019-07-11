@@ -7,6 +7,7 @@ export AbstractPosit, Posit8, Posit16, Posit32,
     AbstractQuire, Quire8, Quire16, Quire32, fms
 
 import Base: Float64, Float32, Float16, Int32, Int64,
+    UInt8, UInt16, UInt32,
     (+), (-), (*), (/), (<), (<=), (==), sqrt,
     bitstring, round, one, zero, promote_rule, eps,
     floatmin, floatmax, signbit, sign, isfinite,

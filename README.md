@@ -34,10 +34,12 @@ Conversion to and from `Float64` and computing a square root
 for a comprehensive notebook covering all the functionality of SoftPosit.jl please read [softposit_examples.ipynb](https://github.com/milankl/SoftPosit.jl/blob/master/docs/softposit_examples.ipynb)
 
 
-# Usage
+# Installation
 
 In the package manager do
 
-    add https://www.github.com/milankl/SoftPosit.jl
+```julia
+(v1.1) pkg> add https://www.github.com/milankl/SoftPosit.jl
+```
  
 and then simply `using SoftPosit` which enables all of the functionality.

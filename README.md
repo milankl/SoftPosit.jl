@@ -22,14 +22,16 @@ To support quires, `Quire8`, `Quire16` and `Quire32` are implemented as 32 / 128
 
 Conversion to and from `Float64` and computing a square root
 
-    julia> p = Posit16(16.0)
-    Posit16(0x7000)
+```julia
+julia> p = Posit16(16.0)
+Posit16(0x7000)
 
-    julia> sqrt(p)
-    Posit16(0x6000)
+julia> sqrt(p)
+Posit16(0x6000)
 
-    julia> Float64(sqrt(p))
-    4.0
+julia> Float64(sqrt(p))
+4.0
+```
 
 for a comprehensive notebook covering all the functionality of SoftPosit.jl please read [softposit_examples.ipynb](https://github.com/milankl/SoftPosit.jl/blob/master/docs/softposit_examples.ipynb)
 

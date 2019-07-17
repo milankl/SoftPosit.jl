@@ -41,7 +41,7 @@ for a comprehensive notebook covering all the functionality of SoftPosit.jl plea
 In the package manager do
 
 ```julia
-(v1.1) pkg> add https://www.github.com/milankl/SoftPosit.jl
+(v1.1) pkg> add https://github.com/milankl/SoftPosit.jl
 ```
  
 and then simply `using SoftPosit` which enables all of the functionality.

@@ -1,7 +1,6 @@
 [![Build Status](https://travis-ci.com/milankl/SoftPosit.jl.svg?branch=master)](https://travis-ci.com/milankl/SoftPosit.jl)
 [![Build Status](https://ci.appveyor.com/api/projects/status/github/milankl/SoftPosit.jl?svg=true)](https://ci.appveyor.com/project/milankl/SoftPosit-jl)
 [![Build Status](https://api.cirrus-ci.com/github/milankl/SoftPosit.jl.svg)](https://cirrus-ci.com/github/milankl/SoftPosit.jl)
-
 # SoftPosit.jl
 
 [Julia](https://julialang.org/) types for the C-based [SoftPosit](https://gitlab.com/cerlane/SoftPosit) library - a posit arithmetic emulator.

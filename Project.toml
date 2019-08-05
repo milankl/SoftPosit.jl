@@ -1,6 +1,6 @@
 name = "SoftPosit"
 uuid = "0775deef-a35f-56d7-82da-cfc52f91364d"
-version = "0.1.0-DEV"
+version = "0.2.0"
 
 [deps]
 BinaryProvider = "b99e7846-7c00-51b0-8f62-c81ae34c0232"

@@ -1,3 +1,4 @@
+[![Project Status: Active – The project has reached a stable, usable state and is being actively developed.](https://www.repostatus.org/badges/latest/active.svg)](https://www.repostatus.org/#active)
 [![Build Status](https://travis-ci.com/milankl/SoftPosit.jl.svg?branch=master)](https://travis-ci.com/milankl/SoftPosit.jl)
 [![Build Status](https://ci.appveyor.com/api/projects/status/github/milankl/SoftPosit.jl?svg=true)](https://ci.appveyor.com/project/milankl/SoftPosit-jl)
 [![Build Status](https://api.cirrus-ci.com/github/milankl/SoftPosit.jl.svg)](https://cirrus-ci.com/github/milankl/SoftPosit.jl)
@@ -36,7 +37,7 @@ julia> Float64(sqrt(p))
 4.0
 ```
 
-for a comprehensive notebook covering all the functionality of SoftPosit.jl please read [softposit_examples.ipynb](https://github.com/milankl/SoftPosit.jl/blob/master/docs/softposit_examples.ipynb)
+for a comprehensive notebook covering (almost) all the functionality of SoftPosit.jl please read [softposit_examples.ipynb](https://github.com/milankl/SoftPosit.jl/blob/master/docs/softposit_examples.ipynb)
 
 
 # Installation

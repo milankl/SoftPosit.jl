@@ -17,5 +17,20 @@ for T in (:Posit8_2, :Posit16_2, :Posit24_2)
     end
 end
 
-# round(x::T) where {T<:PositX1} =  ccall((:pX1_roundToInt, SoftPositPath), T, (T,),x)
-# round(x::T) where {T<:PositX2} =  ccall((:pX2_roundToInt, SoftPositPath), T, (T,),x)
+function round(x::T, r::RoundingMode{:Down}) where {T<:AbstractPosit}
+    xr = round(x)
+    if xr > x
+        return xr-one(T)
+    else
+        return xr
+    end
+end
+
+function round(x::T, r::RoundingMode{:Up}) where {T<:AbstractPosit}
+    xr = round(x)
+    if xr < x
+        return xr+one(T)
+    else
+        return xr
+    end
+end

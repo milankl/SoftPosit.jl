@@ -3,6 +3,8 @@
 [![AppVeyor](https://img.shields.io/appveyor/ci/milankl/Softposit-jl?label=Windows&logo=appveyor&logoColor=white&style=flat-square)](https://ci.appveyor.com/project/milankl/SoftPosit-jl)
 [![Cirrus CI](https://img.shields.io/cirrus/github/milankl/Softposit.jl?label=FreeBSD&logo=cirrus-ci&logoColor=white&style=flat-square)](https://cirrus-ci.com/github/milankl/SoftPosit.jl)
 
+[![DOI](https://zenodo.org/badge/183233999.svg)](https://zenodo.org/badge/latestdoi/183233999)
+
 # SoftPosit.jl
 
 [Julia](https://julialang.org/) types for the C-based [SoftPosit](https://gitlab.com/cerlane/SoftPosit) library - a posit arithmetic emulator.

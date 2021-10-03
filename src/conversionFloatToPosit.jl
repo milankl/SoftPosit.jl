@@ -32,3 +32,25 @@ Posit24_2(x::Float64) = ccall((:convertDoubleToPX2, SoftPositPath), Posit24_2, (
 Posit8_2(x::T where {T <: Float16or32}) = Posit8_2(Float64(x))
 Posit16_2(x::T where {T <: Float16or32}) = Posit16_2(Float64(x))
 Posit24_2(x::T where {T <: Float16or32}) = Posit24_2(Float64(x))
+
+# conversion between Float32 and Posit16
+# from Moritz Lehmann, Uni Bayreuth
+function Posit16(x::Float32)
+
+	ui = reinterpret(UInt32,x)
+	e = ((ui & 0x7f80_0000) >> 23) - 127    # exponent without the exponent bias 127
+	m = (ui & 0x007f_ffff) >> 10            # mantissa
+	
+    ae = abs(e)
+	v = ae >> 1
+	e2 = ae & 1
+
+    # generate regime bits, merge regime+exponent and shift in place
+	r = ((e<0 ? 0x0002 : 0xfffe << e2) + e2) << (13-v-e2)
+
+    # rounding: add 1 after truncated position; in case of lowest numbers, saturate
+	m = ((m>>(v-(e<0)*(1-e2)))+(e>-28)+(e<-26)*0x3)>>1
+
+    # sign | regime+exponent+mantissa ("+" handles rounding overflow) | saturate
+	return (b & 0x8000_0000) >> 16 | (r+m) & 0x7fff | (e>26)*0x7fff
+end

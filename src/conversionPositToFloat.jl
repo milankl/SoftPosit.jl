@@ -19,7 +19,7 @@ Float16(x::AbstractPosit) = Float16(Float64(x))
 
 # conversion between Posit16 and Float32
 # from Moritz Lehmann, Uni Bayreuth
-function Float32(x::Posit16)
+function Float32_new(x::Posit16)
 
     ui = reinterpret(UInt16,x)
 	sr = (ui>>14) & 1      # sign of regime

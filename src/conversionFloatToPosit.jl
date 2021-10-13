@@ -33,27 +33,24 @@ Posit8_2(x::T where {T <: Float16or32}) = Posit8_2(Float64(x))
 Posit16_2(x::T where {T <: Float16or32}) = Posit16_2(Float64(x))
 Posit24_2(x::T where {T <: Float16or32}) = Posit24_2(Float64(x))
 
-# conversion between Float32 and Posit16
-# from Moritz Lehmann, Uni Bayreuth
 function Posit16_new(x::Float32)
 	ui = reinterpret(UInt32,x)
-	e = ((ui & 0x7f80_0000) >> 23) - 127    # exponent without the exponent bias 127
-	
-    abse = abs(e)			# exponent without sign
-	e_odd = abse & 1		# exponent odd = 3,5,...?
 
-    # generate regime bits, merge regime+exponent and shift in place
-	nr = (abse >> 1) + 1 + signbit(e)
-	# r = ((e<0 ? 0x0002 : 0xfffe << e2) + e2) #<< (13-v-e2)
+	sign = ((ui & 0x8000_0000) >> 16) % UInt16
+	e = ((ui & 0x7f80_0000) >> 23) - 127    # exponent without the exponent bias 127	
+    abs_e = abs(e)							# exponent without sign
+	e_odd = (abs_e & 1) % UInt16			# exponent odd = 3,5,...?
+	signbit_e = signbit(e)					# sign of exponent 0: >=1; 1: <1
 
-    # # rounding: add 1 after truncated position; in case of lowest numbers, saturate
-	# m = (ui & 0x007f_ffff) >> 10            # mantissa	
-	# m = ((m>>(v-(e<0)*(1-e2)))+(e>-28)+(e<-26)*0x3)>>1
+	n_regimebits = (abs_e >> 1) + 1			# number of regime bits
+	regime = (reinterpret(Int16,0x8000 >> signbit_e) >> n_regimebits) & 0x7fff
+	exponent = e_odd << (13-n_regimebits)
 
-    # # sign | regime+exponent+mantissa ("+" handles rounding overflow) | saturate
-	# p16 = ((ui & 0x8000_0000) >> 16 % UInt16) | (r+m) & 0x7fff | (e>26)*0x7fff
-	# return reinterpret(Posit16,p16)
+	# mantissa round to zero
+	mantissa = ((ui & 0x007f_ffff) >> (10+n_regimebits)) % UInt16
 
-	bs = bitstring(Posit16(x),:split)
-	return (nr, bs)
+	# bs = bitstring(Posit16(x),:split)
+	# return (n_regimebits, bitstring(regime | exponent | mantissa), bs)
+	p16 = sign | regime | exponent | mantissa
+	return reinterpret(Posit16,p16)
 end

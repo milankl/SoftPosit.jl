@@ -17,8 +17,8 @@ bitstring(x::Posit24_2) = bitstring(reinterpret(UInt32,x))[1:24]
 julia> bitstring(Posit16(123)," ")
 "0 11110 0 111011000"
 """
-function bitstring(x::AbstractPosit,mode::String)
-    if mode == " "
+function bitstring(x::AbstractPosit,mode::Symbol)
+    if mode == :split
         # number of exponent bits
         ne = if x isa PositEx1 1 elseif x isa PositEx2 2 else 0 end
         s = bitstring(x)
@@ -52,4 +52,15 @@ function n_regimebits(s::String)
         n += 1
     end
     n-1     # subtract the sign bit
+end
+
+function Base.show(io::IO, x::AbstractPosit)
+    if isnan(x)
+        print(io, "NaR")
+    else
+		io2 = IOBuffer()
+        print(io2,Float32(x))
+        f = String(take!(io2))
+        print(io,string(typeof(x))*"("*f*")")
+    end
 end

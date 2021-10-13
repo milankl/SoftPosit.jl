@@ -26,17 +26,21 @@ Conversion to and from `Float64` and computing a square root
 
 ```julia
 julia> using SoftPosit
-julia> p = Posit16(16.0)
-Posit16(0x7000)
+julia> p = Posit16(16)
+Posit16(16.0)
 
 julia> sqrt(p)
-Posit16(0x6000)
+Posit16(4.0)
+```
+And the bitwise representation split into sign, regime, exponent and mantissa bits using `bitstring(p,:split)`
 
-julia> Float64(sqrt(p))
-4.0
+```julia
+julia> bitstring(Posit32(123456.7),:split)
+"0 111110 00 11100010010000001011010"
 ```
 
-for a comprehensive notebook covering (almost) all the functionality of SoftPosit.jl please read [softposit_examples.ipynb](https://github.com/milankl/SoftPosit.jl/blob/master/docs/softposit_examples.ipynb)
+For a comprehensive notebook covering (almost) all the functionality of SoftPosit.jl
+please read [softposit_examples.ipynb](https://github.com/milankl/SoftPosit.jl/blob/master/docs/softposit_examples.ipynb)
 
 
 # Installation

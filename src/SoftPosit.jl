@@ -4,7 +4,8 @@ module SoftPosit
         Posit8_1, Posit16_1, Posit24_1,
         Posit8_2, Posit16_2, Posit24_2,
         notareal, minusone,
-        AbstractQuire, Quire8, Quire16, Quire32, fms
+        AbstractQuire, Quire8, Quire16, Quire32, fms,
+        Posit16_new
 
     import Base: Float64, Float32, Float16, Int32, Int64,
         UInt8, UInt16, UInt32,

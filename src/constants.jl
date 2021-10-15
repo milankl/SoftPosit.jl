@@ -70,6 +70,7 @@ signbit(p::Posit32) = signbit(reinterpret(Int32,p))
 signbit(p::T) where {T<:Union{PositX1,PositX2}} = signbit(reinterpret(Int32,p))
 
 isfinite(p::T) where {T<:AbstractPosit} = p != notareal(T)
+Base.isnan(p::AbstractPosit) = p == notareal(p)
 
 function sign(p::T) where {T <: AbstractPosit}
     if signbit(p)       # negative and infinity case

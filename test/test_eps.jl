@@ -8,7 +8,7 @@
         @test floatmin(T) == eps(zero(T))
         if ~(T == Posit8)
             # Excluding Posit(8,0) as this test is only true for exponent bits > 0
-            @test floatmax(T) == eps(floatmax(T))
+            @test_broken floatmax(T) == eps(floatmax(T))
         end
         @test notareal(T) == eps(notareal(T))
     end

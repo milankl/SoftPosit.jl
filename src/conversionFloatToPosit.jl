@@ -48,7 +48,7 @@ function Posit16_new(x::Float32)
 	regime_exponent = reinterpret(Int32,0x8000_0000 | (exponent_bit << 29)) >> n_regimebits
 
 	# for x < 1 use two's complement to the regime and exponent bits to flip them correctly
-	regime_exponent = (regime_exponent ⊻ (signbit_e*0xffff_ffff)) + signbit_e
+	regime_exponent = signbit_e ? -regime_exponent : regime_exponent
 	regime_exponent &= 0x7fff_ffff				# remove any sign that results from arith bitshift
 
 	# MANTISSA - isolate mantissa bits and shift in position
@@ -58,11 +58,9 @@ function Posit16_new(x::Float32)
 
 	# combine regime, exponent and mantissa, round to nearest, tie to even
 	p32 = (regime_exponent | mantissa) + u_half
-	p16 = (p32 >> 16) % UInt16 					# after +u_half round down via >>
+	p16 = (p32 >> 16) % UInt16					# after +u_half round down via >>
 
-	# combine with sign bit and two's complement for negative numbers
-	signbitx = signbit(x)						# 0x1 or 0x0
-	sign = ((ui & 0x8000_0000) >> 16) % UInt16	# isolate sign bit
-	p16 = sign | ((p16 ⊻ (signbitx*0xffff)) + signbitx)		# two's complement
+	# check for sign bit and apply two's complement for negative numbers
+	p16 = signbit(x) ? -p16 : p16
 	return reinterpret(Posit16,p16)
 end

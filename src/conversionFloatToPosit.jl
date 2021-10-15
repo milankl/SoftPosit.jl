@@ -33,27 +33,36 @@ Posit8_2(x::T where {T <: Float16or32}) = Posit8_2(Float64(x))
 Posit16_2(x::T where {T <: Float16or32}) = Posit16_2(Float64(x))
 Posit24_2(x::T where {T <: Float16or32}) = Posit24_2(Float64(x))
 
-# conversion between Float32 and Posit16
-# from Moritz Lehmann, Uni Bayreuth
 function Posit16_new(x::Float32)
-	ui = reinterpret(UInt32,x)
-	e = ((ui & 0x7f80_0000) >> 23) - 127    # exponent without the exponent bias 127
+	ui = reinterpret(UInt32,x)	
 	
-    abse = abs(e)			# exponent without sign
-	e_odd = abse & 1		# exponent odd = 3,5,...?
+	# REGIME AND EXPONENT BITS
+	# exponent without the exponent bias 127
+	e = reinterpret(Int32,(ui & 0x7f80_0000) >> 23) - Int32(127)    
+	abs_e = abs(e)								# exponent without sign
+	signbit_e = signbit(e)						# sign of exponent
+	n_regimebits = (abs_e >> 1) + 1				# number of regime bits
+	exponent_bit = abs_e & 0x1					# exponent bit from exponent odd = 3,5,...?
 
-    # generate regime bits, merge regime+exponent and shift in place
-	nr = (abse >> 1) + 1 + signbit(e)
-	# r = ((e<0 ? 0x0002 : 0xfffe << e2) + e2) #<< (13-v-e2)
+	# combine regime bit and exponent and then arithmetic bitshift them in for e.g. 111110_e_....
+	regime_exponent = reinterpret(Int32,0x8000_0000 | (exponent_bit << 29)) >> n_regimebits
 
-    # # rounding: add 1 after truncated position; in case of lowest numbers, saturate
-	# m = (ui & 0x007f_ffff) >> 10            # mantissa	
-	# m = ((m>>(v-(e<0)*(1-e2)))+(e>-28)+(e<-26)*0x3)>>1
+	# for x < 1 use two's complement to the regime and exponent bits to flip them correctly
+	regime_exponent = (regime_exponent ⊻ (signbit_e*0xffff_ffff)) + signbit_e
+	regime_exponent &= 0x7fff_ffff				# remove any sign that results from arith bitshift
 
-    # # sign | regime+exponent+mantissa ("+" handles rounding overflow) | saturate
-	# p16 = ((ui & 0x8000_0000) >> 16 % UInt16) | (r+m) & 0x7fff | (e>26)*0x7fff
-	# return reinterpret(Posit16,p16)
+	# MANTISSA - isolate mantissa bits and shift in position
+	mantissa = (ui & 0x007f_ffff) >> (n_regimebits-6+signbit_e*(exponent_bit-1))		
+	# add u/2 = 0x0000_7fff or 0x0000_8000 for tie to even
+	u_half = 0x0000_7fff + ((mantissa >> 16) & 0x0000_0001)
 
-	bs = bitstring(Posit16(x),:split)
-	return (nr, bs)
+	# combine regime, exponent and mantissa, round to nearest, tie to even
+	p32 = (regime_exponent | mantissa) + u_half
+	p16 = (p32 >> 16) % UInt16 					# after +u_half round down via >>
+
+	# combine with sign bit and two's complement for negative numbers
+	signbitx = signbit(x)						# 0x1 or 0x0
+	sign = ((ui & 0x8000_0000) >> 16) % UInt16	# isolate sign bit
+	p16 = sign | ((p16 ⊻ (signbitx*0xffff)) + signbitx)		# two's complement
+	return reinterpret(Posit16,p16)
 end

@@ -39,12 +39,15 @@ end
 @testset "0,±1,±2,±4" begin
 	for f in Float32[-4,-2,-1,0,1,2,4]
 		@test Posit16(f) == Posit16_new(f)
+		@test f == Float32_new(Posit16_new(f))
 	end
 end
+
 
 @testset "0,±1/2,±1/4,±1/8" begin
 	for f in Float32[-1/8,-1/4,-1/2,0,1/2,1/4,1/8]
 		@test Posit16(f) == Posit16_new(f)
+		@test f == Float32_new(Posit16_new(f))
 	end
 end
 
@@ -64,12 +67,18 @@ end
 		@test Posit16(-f) == Posit16_new(-f)
 		@test Posit16(1/f) == Posit16_new(1/f)
 		@test Posit16(-1/f) == Posit16_new(-1/f)
+
+		@test f == Float32_new(Posit16_new(f))
+		@test -f == Float32_new(Posit16_new(-f))
+		@test 1/f == Float32_new(Posit16_new(1/f))
+		@test -1/f == Float32_new(Posit16_new(-1/f))
 	end
 end
 
 @testset "NaN, Inf" begin
 	for f in [NaN32,Inf32,-Inf32]
 		@test Posit16(f) == Posit16_new(f)
+		@test isnan(Float32_new(Posit16_new(f)))
 	end
 
 	for _ in 1:10
@@ -83,6 +92,11 @@ end
 @testset "U(0,1)" begin
 	for f in rand(Float32,100)
 		@test Posit16(f) == Posit16_new(f)
+		@test Float32(Posit16(f)) == Float32_new(Posit16_new(f))
+
+		# idempotence
+		f32 = Float32(Posit16(f))
+		@test f32 == Float32_new(Posit16_new(f32))
 	end
 end
 
@@ -90,11 +104,21 @@ end
 	for f in 1 .+ 20*rand(Float32,100)
 		@test Posit16(-f) == Posit16_new(-f)
 		@test Posit16(f) == Posit16_new(f)
+		@test Float32(Posit16(f)) == Float32_new(Posit16_new(f))
+
+		# idempotence
+		f32 = Float32(Posit16(f))
+		@test f32 == Float32_new(Posit16_new(f32))
 	end
 end
 
 @testset "N(0,1)" begin
 	for f in randn(Float32,100)
 		@test Posit16(f) == Posit16_new(f)
+		@test Float32(Posit16(f)) == Float32_new(Posit16_new(f))
+
+		# idempotence
+		f32 = Float32(Posit16(f))
+		@test f32 == Float32_new(Posit16_new(f32))
 	end
 end

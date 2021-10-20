@@ -14,6 +14,7 @@ Float64(x::Posit24_1) = ccall((:convertPX1ToDouble, SoftPositPath), Float64, (Po
 
 # conversion to Float32,16
 Float16(x::AbstractPosit) = Float16(Float64(x))
+Float32(x::AbstractPosit) = Float32(Float64(x))
 Float16(x::Posit16) = Float16(Float32(x))
 Float64(x::Posit16) = Float64(Float32(x))
 

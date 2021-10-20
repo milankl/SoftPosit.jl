@@ -1,6 +1,5 @@
 # from Posit to Float64,32,16
 Float64(x::Posit8) = ccall((:convertP8ToDouble, SoftPositPath), Float64, (Posit8,),x)
-Float64(x::Posit16) = ccall((:convertP16ToDouble, SoftPositPath), Float64, (Posit16,),x)
 Float64(x::Posit32) = ccall((:convertP32ToDouble, SoftPositPath), Float64, (Posit32,),x)
 
 # conversion from PX2 to Float64,32,16
@@ -14,10 +13,12 @@ Float64(x::Posit16_1) = ccall((:convertPX1ToDouble, SoftPositPath), Float64, (Po
 Float64(x::Posit24_1) = ccall((:convertPX1ToDouble, SoftPositPath), Float64, (Posit24_1,),x)
 
 # conversion to Float32,16
-Float32(x::AbstractPosit) = Float32(Float64(x))
 Float16(x::AbstractPosit) = Float16(Float64(x))
+Float32(x::AbstractPosit) = Float32(Float64(x))
+Float16(x::Posit16) = Float16(Float32(x))
+Float64(x::Posit16) = Float64(Float32(x))
 
-function Float32_new(x::Posit16)
+function Float32(x::Posit16)
     ui = reinterpret(UInt16,x)
 
     signbitx = signbit(x)                   # sign of number
@@ -44,3 +45,6 @@ function Float32_new(x::Posit16)
     return reinterpret(Float32,f32)
 end
 
+# legacy
+Float32_old(x::AbstractPosit) = Float32(Float64_old(x))
+Float64_old(x::Posit16) = ccall((:convertP16ToDouble, SoftPositPath), Float64, (Posit16,),x)

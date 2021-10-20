@@ -8,6 +8,16 @@ Posit numbers are an alternative to floating-point numbers. Posits extend floats
 
 If this library doesn't support a desired functionality or for anything else, please raise an issue.
 
+# Installation
+
+In the package manager do
+
+```julia
+julia>] add SoftPosit
+```
+
+and then simply `using SoftPosit` which enables all of the functionality.
+
 # 8, 16 and 32bit posit formats
 
 SoftPosit.jl emulates the following Posit number formats `Posit(n,es)`, with `n` number of bits including `es` exponent bits: Posit(8,0), Posit(16,1), Posit(32,2) as primitive types called
@@ -42,13 +52,15 @@ julia> bitstring(Posit32(123456.7),:split)
 For a comprehensive notebook covering (almost) all the functionality of SoftPosit.jl
 please read [softposit_examples.ipynb](https://github.com/milankl/SoftPosit.jl/blob/master/docs/softposit_examples.ipynb)
 
+# Rounding mode
 
-# Installation
+Following the posit standard, posits should underflow between [-minpos/2,0) and (0,minpos/2] and
+never overflow in (-∞,-maxpos] and [maxpos,∞). Float ±infinity and Not-a-Number are mapped to posit
+Not-a-Real NaR, and NaR is mapped back to NaN. In the current version v0.4 the implementaion of this
+rounding mode make a few changes
 
-In the package manager do
+- **Posit8 and Posit32**: No underflow, all numbers in [-minpos,0) are mapped to -minpos (and (0,minpos] to minpos)
+- **Posit16**: Underflow occurs at minpos/4 and overflow occurs at floatmax(Float32)/4
 
-```julia
-julia>] add SoftPosit
-```
+Round to nearest, tie to even is implemented for all formats.
 
-and then simply `using SoftPosit` which enables all of the functionality.

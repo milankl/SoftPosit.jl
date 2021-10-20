@@ -10,13 +10,13 @@ If this library doesn't support a desired functionality or for anything else, pl
 
 # Installation
 
-In the package manager do
+In the Julia REPL do
 
 ```julia
 julia>] add SoftPosit
 ```
 
-and then simply `using SoftPosit` which enables all of the functionality.
+where `]` opens the package manager. Then simply `using SoftPosit` which enables all of the functionality.
 
 # 8, 16 and 32bit posit formats
 

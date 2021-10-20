@@ -58,7 +58,7 @@ function Posit16_new(x::Float32)
 
     # combine regime, exponent and mantissa, round to nearest, tie to even
     p32 = (regime_exponent | mantissa) + u_half
-    p16 = ((p32 >> 16) % UInt16) - (15 < n_regimebits < 65)    # after +u_half round down via >>
+    p16 = ((p32 >> 16) % UInt16) - (15 < n_regimebits < 64)    # after +u_half round down via >>
 
     # check for sign bit and apply two's complement for negative numbers
     p16 = signbit(x) ? -p16 : p16

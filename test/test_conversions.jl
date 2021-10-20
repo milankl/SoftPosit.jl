@@ -122,3 +122,14 @@ end
 		@test f32 == Float32_new(Posit16_new(f32))
 	end
 end
+
+@testset "Overflow and underflow" begin
+    for f in Float32[2f8,3f8,4f8,5f8,1f9,1f10,1f15,1f20,1f25,1f30,1f35,floatmax(Float32)/4]
+        @test floatmax(Posit16) == Posit16_new(f)
+        @test -floatmax(Posit16) == Posit16_new(-f)
+    end
+
+    @test isnan(Posit16_new(NaN32))
+    @test isnan(Posit16_new(Inf32))
+    @test isnan(Posit16_new(-Inf32))
+end 

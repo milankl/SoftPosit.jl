@@ -1,16 +1,5 @@
-bitstring(x::Posit8) = bitstring(reinterpret(UInt8,x))
-bitstring(x::Posit16) = bitstring(reinterpret(UInt16,x))
-bitstring(x::Posit32) = bitstring(reinterpret(UInt32,x))
-
-bitstring(x::Posit8_1) = bitstring(UInt8(reinterpret(UInt32,x) >> 24))
-bitstring(x::Posit8_2) = bitstring(UInt8(reinterpret(UInt32,x) >> 24))
-
-bitstring(x::Posit16_1) = bitstring(UInt16(reinterpret(UInt32,x) >> 16))
-bitstring(x::Posit16_2) = bitstring(UInt16(reinterpret(UInt32,x) >> 16))
-
-# cut off the string as UInt24 does not exist
-bitstring(x::Posit24_1) = bitstring(reinterpret(UInt32,x))[1:24]
-bitstring(x::Posit24_2) = bitstring(reinterpret(UInt32,x))[1:24]
+# bitstring via uints
+bitstring(x::AbstractPosit) = bitstring(reinterpret(Base.uinttype(typeof(x)),x))
 
 """Bitstring split into sign, regime, exponent and fraction bits.
 # Example
@@ -20,7 +9,7 @@ julia> bitstring(Posit16(123)," ")
 function bitstring(x::AbstractPosit,mode::Symbol)
     if mode == :split
         # number of exponent bits
-        ne = if x isa PositEx1 1 elseif x isa PositEx2 2 else 0 end
+        ne = x isa Posit16_1 ? 1 : 2
         s = bitstring(x)
         n = n_regimebits(s)
 
@@ -59,7 +48,7 @@ function Base.show(io::IO, x::AbstractPosit)
         print(io, "NaR")
     else
 		io2 = IOBuffer()
-        print(io2,Float32(x))
+        print(io2,FloatX(x))
         f = String(take!(io2))
         print(io,string(typeof(x))*"("*f*")")
     end

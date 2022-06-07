@@ -5,10 +5,5 @@ Base.isfinite(x::AbstractPosit) = ~isnan(x)             # finite if not NaR
 Base.iszero(x::AbstractPosit) = x == zero(x)
 
 # COMPARISONS via two's complement (- of uints)
-for op in (:(<), :(<=))
-    @eval begin
-        function Base.$op(x::T,y::T) where {T<:AbstractPosit}
-            return $op(-reinterpret(Base.uinttype(T),x),-reinterpret(Base.uinttype(T),y))
-        end
-    end
-end
+Base.:(<)(x::T,y::T) where {T<:AbstractPosit} = -unsigned(x) < -unsigned(y)
+Base.:(<=)(x::T,y::T) where {T<:AbstractPosit} = -unsigned(x) <= -unsigned(y)

@@ -6,13 +6,13 @@ module SoftPosit
     # const SoftPositPath = SoftPosit_jll.softposit
 
     export AbstractPosit, Posit8, Posit16, Posit32, Posit16_1,
-        notareal,
+        notareal
         # AbstractQuire, Quire8, Quire16, Quire32, fms
 
     include("typedef.jl")
     include("comparisons.jl")
     include("constants.jl")
-    include("conversions.jl")
+    # include("conversions.jl")
     include("arithmetics.jl")
     # include("round.jl")
     include("print.jl")

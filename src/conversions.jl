@@ -47,43 +47,84 @@ Posit32(x::Posit8) = (reinterpret(Base.uinttype(Posit8),x) % UInt32) << 24
 # promotions
 Base.promote_rule(::Type{Integer},::Type{T}) where {T<:AbstractPosit} = T
 
-# FROM FLOATS
-# Float16/64 use detour via Float32
-Posit16(x::Float16) = Posit16(Float32(x))
-Posit16(x::Float64) = Posit16(Float32(x))
-Posit16_1(x::Float16) = Posit16_1(Float32(x))
-Posit16_1(x::Float64) = Posit16_1(Float32(x))
-
-function Posit16_1(x::Float32)
-    ui = reinterpret(UInt32,x)	
+# function Posit16_1(x::Float32)
+#     ui = reinterpret(UInt32,x)	
     
+#     # REGIME AND EXPONENT BITS
+#     # exponent without the exponent bias 127
+#     e = reinterpret(Int32,(ui & 0x7f80_0000) >> 23) - Int32(127)    
+#     abs_e = abs(e)                          # exponent without sign
+#     signbit_e = signbit(e)                  # sign of exponent
+#     n_regimebits = (abs_e >> 1) + 1         # number of regime bits
+#     exponent_bit = abs_e & 0x1              # exponent bit from exponent odd = 3,5,...?
+
+#     # combine regime bit and exponent and then arithmetic bitshift them in for e.g. 111110_e_....
+#     regime_exponent = reinterpret(Int32,0x8000_0000 | (exponent_bit << 29)) >> n_regimebits
+
+#     # for x < 1 use two's complement to the regime and exponent bits to flip them correctly
+#     regime_exponent = signbit_e ? -regime_exponent : regime_exponent
+#     regime_exponent &= 0x7fff_ffff          # remove any sign that results from arith bitshift
+
+#     # MANTISSA - isolate mantissa bits and shift in position
+#     mantissa = (ui & 0x007f_ffff) >> (n_regimebits-6+signbit_e*(exponent_bit-1))		
+#     # add u/2 = 0x0000_7fff or 0x0000_8000 for tie to even
+#     u_half = 0x0000_7fff + ((mantissa >> 16) & 0x0000_0001)
+
+#     # combine regime, exponent and mantissa, round to nearest, tie to even
+#     p32 = (regime_exponent | mantissa) + u_half
+#     p16 = ((p32 >> 16) % UInt16) - (15 < n_regimebits < 64)    # after +u_half round down via >>
+
+#     # check for sign bit and apply two's complement for negative numbers
+#     p16 = signbit(x) ? -p16 : p16
+#     return reinterpret(Posit16_1,p16)
+# end
+
+# FROM FLOATS
+Posit8(x::T) where {T<:Base.IEEEFloat} = posit(Posit8,x)
+Posit16(x::T) where {T<:Base.IEEEFloat} = posit(Posit16,x)
+Posit16_1(x::T) where {T<:Base.IEEEFloat} = posit(Posit16_1,x)
+Posit32(x::T) where {T<:Base.IEEEFloat} = posit(Posit32,x)
+
+function posit(::Type{PositN},x::FloatN) where {PositN<:AbstractPosit,FloatN<:Base.IEEEFloat}
+
+    UIntN = Base.uinttype(FloatN)           # unsigned integer corresponding to FloatN
+    IntN = Base.inttype(FloatN)             # signed integer corresponding to FloatN
+    ui = reinterpret(UIntN,x)               # reinterpret input
+
     # REGIME AND EXPONENT BITS
-    # exponent without the exponent bias 127
-    e = reinterpret(Int32,(ui & 0x7f80_0000) >> 23) - Int32(127)    
+    # extract exponent bits and shift to tail, then remove bias
+    e = (ui & Base.exponent_mask(FloatN)) >> Base.significand_bits(FloatN)
+    e = reinterpret(IntN,e) - IntN(Base.exponent_bias(FloatN))
     abs_e = abs(e)                          # exponent without sign
-    signbit_e = signbit(e)                  # sign of exponent
-    n_regimebits = (abs_e >> 1) + 1         # number of regime bits
-    exponent_bit = abs_e & 0x1              # exponent bit from exponent odd = 3,5,...?
+    signbit_e = signbit(e)                  # sign of exponent                                 
+    n_regimebits = (abs_e >> Base.exponent_bits(PositN)) + 1    # number of regime bits
+    exponent_bits = abs_e & Base.exponent_mask(PositN)          # exponent from tail of float exponent
 
     # combine regime bit and exponent and then arithmetic bitshift them in for e.g. 111110_e_....
-    regime_exponent = reinterpret(Int32,0x8000_0000 | (exponent_bit << 29)) >> n_regimebits
+    regime_exponent = Base.sign_mask(FloatN) | (exponent_bits << (bitsize(FloatN)-2-Base.exponent_bits(PositN)))
+    regime_exponent = reinterpret(IntN,regime_exponent) >> n_regimebits
 
     # for x < 1 use two's complement to the regime and exponent bits to flip them correctly
     regime_exponent = signbit_e ? -regime_exponent : regime_exponent
-    regime_exponent &= 0x7fff_ffff          # remove any sign that results from arith bitshift
+    regime_exponent &= ~Base.sign_mask(FloatN)  # remove any sign that results from arith bitshift
 
-    # MANTISSA - isolate mantissa bits and shift in position
-    mantissa = (ui & 0x007f_ffff) >> (n_regimebits-6+signbit_e*(exponent_bit-1))		
-    # add u/2 = 0x0000_7fff or 0x0000_8000 for tie to even
-    u_half = 0x0000_7fff + ((mantissa >> 16) & 0x0000_0001)
+    # MANTISSA 
+    mantissa = zero(ui)
+    # mantissa = (ui & Base.significand_mask(FloatN))             # extract mantissa bits
+    # # mantissa >>= (n_regimebits-6+signbit_e*(exponent_bits-1))   # shift in position
+    # mantissa >>= (n_regimebits-6+signbit_e*(exponent_bits-1))   # shift in position
+    # ulp_half = ~Base.sign_mask(FloatN) >> bitsize(PositN)       # create 0x0000_7fff
+    # ulp_half += ((mantissa >> bitsize(PositN)) & 0x1)           # tie to even: u/2 = 0x0000_7fff or 0x0000_8000
 
     # combine regime, exponent and mantissa, round to nearest, tie to even
-    p32 = (regime_exponent | mantissa) + u_half
-    p16 = ((p32 >> 16) % UInt16) - (15 < n_regimebits < 64)    # after +u_half round down via >>
+    p = (regime_exponent | mantissa) #+ ulp_half
+    # p_trunc = ((p >> 16) % Base.uinttype(PositN)) - (15 < n_regimebits < 64)    # after +u_half round down via >>
+    Δbits = bitsize(FloatN) - bitsize(PositN)
+    p_trunc = ((p >> Δbits) % Base.uinttype(PositN))
 
     # check for sign bit and apply two's complement for negative numbers
-    p16 = signbit(x) ? -p16 : p16
-    return reinterpret(Posit16_1,p16)
+    p_trunc = signbit(x) ? -p_trunc : p_trunc
+    return reinterpret(PositN,p_trunc)
 end
 
 ## TO FLOATS

@@ -27,7 +27,7 @@ Base.float(x::AbstractPosit) = convert(Base.floattype(typeof(x)),x)
 for PositType in (:Posit8, :Posit16, :Posit32, :Posit16_1)
     @eval begin
             $PositType(x::Bool) = x ? one($PositType) : zero($PositType)
-            promote_rule(::Type{Bool},::Type{$PositType}) = $PositType
+            Base.promote_rule(::Type{Bool},::Type{$PositType}) = $PositType
     end
 end
 
@@ -45,7 +45,7 @@ Posit32(x::Posit8) = (reinterpret(Base.uinttype(Posit8),x) % UInt32) << 24
 
 # WITH INTEGERS
 # promotions
-promote_rule(::Type{Integer},::Type{T}) where {T<:AbstractPosit} = T
+Base.promote_rule(::Type{Integer},::Type{T}) where {T<:AbstractPosit} = T
 
 # FROM FLOATS
 # Float16/64 use detour via Float32
@@ -87,143 +87,58 @@ function Posit16_1(x::Float32)
 end
 
 ## TO FLOATS
-# conversion to Float32,16
-Float16(x::AbstractPosit) = Float16(Float64(x))
-Float32(x::AbstractPosit) = Float32(Float64(x))
-Float16(x::Posit16) = Float16(Float32(x))
-Float64(x::Posit16) = Float64(Float32(x))
+Base.Float16(x::Posit8) = float(Float32,x)
+Base.Float32(x::Posit8) = float(Float32,x)
+Base.Float64(x::Posit8) = float(Float64,x)
 
-function Float32(x::Posit16_1)
-    ui = reinterpret(UInt16,x)
+Base.Float16(x::Posit16) = Float16(float(Float32,x))
+Base.Float32(x::Posit16) = float(Float32,x)
+Base.Float64(x::Posit16) = float(Float64,x)
 
-    signbitx = signbit(x)                   # sign of number
-    abs_p16 = (signbitx ? -ui : ui) << 1    # two's complement for negative, remove sign bit
+Base.Float16(x::Posit16_1) = Float16(float(Float32,x))
+Base.Float32(x::Posit16_1) = float(Float32,x)
+Base.Float64(x::Posit16_1) = float(Float64,x)
 
-    # determine exponent sign from 2nd bit: 1=x>
-    sign_exponent = reinterpret(Bool,((abs_p16 & 0x8000) >> 15) % UInt8)
-    n_regimebits = sign_exponent ? leading_ones(abs_p16) : leading_zeros(abs_p16)
+Base.Float16(x::Posit32) = Float16(float(Float64,x))
+Base.Float32(x::Posit32) = Float32(float(Float64,x))
+Base.Float64(x::Posit32) = float(Float64,x)
+
+function Base.float(::Type{FloatN},x::PositN) where {FloatN<:Base.IEEEFloat,PositN<:AbstractPosit}
     
-    # extract exponent and mantissa bits
-    exponent_bit = ((abs_p16 << (n_regimebits+1)) & 0x8000) >> 15
-    mantissa = ((abs_p16 << (n_regimebits + 2)) % UInt32) << 7
-
-    # assemble float exponent from posit # of regime bits and exponent bit
-    exponent = ((sign_exponent ? n_regimebits : -n_regimebits+1) << 1) + exponent_bit + 125
-    
-    # set exponent (and 1st mantissa bit) to NaN for NaR inputs
-    # set exponent to 0 for zero(Posit16) input
-    exponent = n_regimebits == 16 ? signbitx*0x7fc00000 : (exponent % UInt32) << 23
-
-    # assemble sign, exponent and mantissa bits
-    sign = (signbitx % UInt32) << 31		# isolate sign bit
-    f32 = sign | exponent | mantissa		# concatenate sign, exponent and mantissa
-    return reinterpret(Float32,f32)
-end
-
-function Base.Float32(x::Posit8)
+    UIntN = Base.uinttype(FloatN)           # corresponding UInt for floattype
+    n_bits = bitsize(PositN)                # number of bits in posit format
     ui = unsigned(x)                        # as unsigned integer
     signbitx = signbit(x)                   # sign of number
-    abs_p8 = signbitx ? -ui : ui            # two's complement for negative
-    abs_p8 <<= 1                            # push signbit over the edge
+    absx = signbitx ? -ui : ui              # two's complement for negative
+    absx <<= 1                              # push signbit over the edge
 
     # determine exponent sign from 2nd bit
-    sign_exponent = reinterpret(Bool,(abs_p8 & 0x80) >> 7)
+    sign_exponent = reinterpret(Bool,(absx >> (n_bits-1)) % UInt8)
 
     # number of regime bits
-    n_regimebits = sign_exponent ? leading_ones(abs_p8) : leading_zeros(abs_p8)
+    n_regimebits = sign_exponent ? leading_ones(absx) : leading_zeros(absx)
 
     # MANTISSA BITS extract by shifting in position for Float32 and masking sign & exponent
-    mantissa = ((abs_p8 % UInt32) << (n_regimebits + 18)) & Base.significand_mask(Float32)
+    shift = mantissa_shift(FloatN,PositN)
+    mantissa = ((absx % UIntN) << (n_regimebits + shift)) & Base.significand_mask(FloatN)
     
     # EXPONENT BITS extract by shifting regime bits over the edge and push back to the tail
-    exponent_bits = (abs_p8 << (n_regimebits+1)) >> 6
+    exponent_bits = (absx << (n_regimebits+1)) >> (n_bits-Base.exponent_bits(PositN))
 
     # ASSEMBLE FLOAT EXPONENT
     # useed^k * 2^e = 2^(4k+e), ie get k-value from number of exponent bits,
     # <<2 for *4, add exponent bits and Float32 exponent bias (=127)
     k = (-1+2sign_exponent)*n_regimebits - sign_exponent
-    exponent = ((k << 2) + exponent_bits + Base.exponent_bias(Float32)) % UInt32
-    exponent <<= Base.significand_bits(Float32)
+    exponent = ((k << Base.exponent_bits(PositN)) + exponent_bits + Base.exponent_bias(FloatN)) % UIntN
+    exponent <<= Base.significand_bits(FloatN)
     
     # set exponent (and 1st mantissa bit) to NaN for NaR inputs
     # set exponent to 0 for zero(Posit8) input
-    nan = reinterpret(UInt32,NaN32)
-    exponent = n_regimebits == 8 ? (signbitx ? nan : zero(exponent)) : exponent
+    nan_ui = reinterpret(UIntN,nan(FloatN))
+    exponent = n_regimebits == n_bits ? (signbitx ? nan_ui : zero(exponent)) : exponent
 
     # assemble sign, exponent and mantissa bits
-    sign = (signbitx % UInt32) << 31        # isolate sign bit
-    f32 = sign | exponent | mantissa		# concatenate sign, exponent and mantissa
-    return reinterpret(Float32,f32)
-end
-
-function Base.Float32(x::Posit16)
-    ui = unsigned(x)                        # as unsigned integer
-    signbitx = signbit(x)                   # sign of number
-    abs_p16 = signbitx ? -ui : ui           # two's complement for negative
-    abs_p16 <<= 1                           # push signbit over the edge
-
-    # determine exponent sign from 2nd bit
-    sign_exponent = reinterpret(Bool,((abs_p16 & 0x8000) >> 15) % UInt8)
-
-    # number of regime bits
-    n_regimebits = sign_exponent ? leading_ones(abs_p16) : leading_zeros(abs_p16)
-
-    # MANTISSA BITS extract by shifting in position for Float32 and masking sign & exponent
-    mantissa = ((abs_p16 % UInt32) << (n_regimebits + 9)) & Base.significand_mask(Float32)
-    
-    # EXPONENT BITS extract by shifting regime bits over the edge and push back to the tail
-    exponent_bits = (abs_p16 << (n_regimebits+1)) >> 14
-
-    # ASSEMBLE FLOAT EXPONENT
-    # useed^k * 2^e = 2^(4k+e), ie get k-value from number of exponent bits,
-    # <<2 for *4, add exponent bits and Float32 exponent bias (=127)
-    k = (-1+2sign_exponent)*n_regimebits - sign_exponent
-    exponent = ((k << 2) + exponent_bits + Base.exponent_bias(Float32)) % UInt32
-    exponent <<= Base.significand_bits(Float32)
-    
-    # set exponent (and 1st mantissa bit) to NaN for NaR inputs
-    # set exponent to 0 for zero(Posit8) input
-    nan = reinterpret(UInt32,NaN32)
-    exponent = n_regimebits == 16 ? (signbitx ? nan : zero(exponent)) : exponent
-
-    # assemble sign, exponent and mantissa bits
-    sign = (signbitx % UInt32) << 31        # isolate sign bit
-    f32 = sign | exponent | mantissa		# concatenate sign, exponent and mantissa
-    return reinterpret(Float32,f32)
-end
-
-function Base.Float64(x::Posit32)
-    ui = unsigned(x)                        # as unsigned integer
-    signbitx = signbit(x)                   # sign of number
-    abs_p32 = signbitx ? -ui : ui           # two's complement for negative
-    abs_p32 <<= 1                           # push signbit over the edge
-
-    # determine exponent sign from 2nd bit
-    sign_exponent = reinterpret(Bool,((abs_p32 & 0x8000_0000) >> 31) % UInt8)
-
-    # number of regime bits
-    n_regimebits = sign_exponent ? leading_ones(abs_p32) : leading_zeros(abs_p32)
-
-    # MANTISSA BITS extract by shifting in position for Float32 and masking sign & exponent
-    mantissa = ((abs_p32 % UInt64) << (n_regimebits + 23)) & Base.significand_mask(Float64)
-    
-    # EXPONENT BITS extract by shifting regime bits over the edge and push back to the tail
-    exponent_bits = (abs_p32 << (n_regimebits+1)) >> 30
-
-    # ASSEMBLE FLOAT EXPONENT
-    # useed^k * 2^e = 2^(4k+e), ie get k-value from number of exponent bits,
-    # <<2 for *4, add exponent bits and Float32 exponent bias (=127)
-    k = (-1+2sign_exponent)*n_regimebits - sign_exponent
-    exponent = ((k << 2) + exponent_bits + Base.exponent_bias(Float64)) % UInt64
-    exponent <<= Base.significand_bits(Float64)
-    
-    # set exponent (and 1st mantissa bit) to NaN for NaR inputs
-    # set exponent to 0 for zero(Posit8) input
-    nan = reinterpret(UInt64,NaN)
-    exponent = n_regimebits == 32 ? (signbitx ? nan : zero(exponent)) : exponent
-
-    # assemble sign, exponent and mantissa bits
-    sign = (signbitx % UInt64) << 63        # isolate sign bit
-    f64 = sign | exponent | mantissa		# concatenate sign, exponent and mantissa
-    return reinterpret(Float64,f64)
+    sign = signbitx*Base.sign_mask(FloatN)
+    f = sign | exponent | mantissa		    # concatenate sign, exponent and mantissa
+    return reinterpret(FloatN,f)
 end

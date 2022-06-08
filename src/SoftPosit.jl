@@ -12,7 +12,7 @@ module SoftPosit
     include("typedef.jl")
     include("comparisons.jl")
     include("constants.jl")
-    # include("conversions.jl")
+    include("conversions.jl")
     include("arithmetics.jl")
     # include("round.jl")
     include("print.jl")

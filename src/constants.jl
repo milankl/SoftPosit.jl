@@ -6,6 +6,7 @@ Base.floatmax(::Type{Posit8}) = reinterpret(Posit8,0x7f)    # use floatmax for m
 Base.floatmin(::Type{Posit8}) = reinterpret(Posit8,0x01)    # use floatmin for minpos
 Base.exponent_bits(::Type{Posit8}) = 2
 Base.exponent_mask(::Type{Posit8}) = 0x01
+Base.sign_mask(::Type{Posit8}) = 0x80
 bitsize(::Type{Posit8}) = 8
 
 # 16bit Posits, 1 or 2 exponent bits
@@ -18,6 +19,7 @@ Base.exponent_bits(::Type{Posit16}) = 2
 Base.exponent_bits(::Type{Posit16_1}) = 1
 Base.exponent_mask(::Type{Posit16}) = 0x0003
 Base.exponent_mask(::Type{Posit16_1}) = 0x0001
+Base.sign_mask(::Type{T}) where {T<:PositAll16} = 0x8000
 bitsize(::Type{T}) where {T<:PositAll16} = 16
 
 # 32bit Posits
@@ -28,6 +30,7 @@ Base.floatmax(::Type{Posit32}) = reinterpret(Posit32,0x7fff_ffff)
 Base.floatmin(::Type{Posit32}) = reinterpret(Posit32,0x0000_0001)
 Base.exponent_bits(::Type{Posit32}) = 2
 Base.exponent_mask(::Type{Posit32}) = 0x0000_0003
+Base.sign_mask(::Type{Posit32}) = 0x8000_0000
 bitsize(::Type{Posit32}) = 32
 
 # define Not-a-Real (NaR) / complex infinity

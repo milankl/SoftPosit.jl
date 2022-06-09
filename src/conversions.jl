@@ -14,15 +14,6 @@ Base.inttype(::Type{Posit32}) = Int32
 Base.unsigned(x::AbstractPosit) = reinterpret(Base.uinttype(typeof(x)),x)
 Base.signed(x::AbstractPosit) = reinterpret(Base.inttype(typeof(x)),x)
 
-# corresponding float types for round-free conversion (they don't match in bitsize though!)
-Base.floattype(::Type{Posit8}) = Float32        # Posit8, 16 are subsets of Float32
-Base.floattype(::Type{Posit16}) = Float32
-Base.floattype(::Type{Posit16_1}) = Float32
-Base.floattype(::Type{Posit32}) = Float64       # Posit32 is a subset of Float64
-
-# generic conversion to float
-Base.float(x::AbstractPosit) = convert(Base.floattype(typeof(x)),x)    
-
 # BOOL
 for PositType in (:Posit8, :Posit16, :Posit32, :Posit16_1)
     @eval begin
@@ -39,45 +30,38 @@ Posit32(x::UInt32)      = reinterpret(Posit32,x)
 
 # BETWEEN Posits
 # upcasting: append with zeros.
-Posit16(x::Posit8) = (reinterpret(Base.uinttype(Posit8),x) % UInt16) << 8
-Posit32(x::Posit8) = (reinterpret(Base.uinttype(Posit8),x) % UInt32) << 24
-# Posit16_1(x::Posit8) not yet supported as number of exponents bits changes
+Posit16(x::Posit8) = (unsigned(x) % UInt16) << 8
+Posit32(x::Posit8) = (unsigned(x) % UInt32) << 24
+Posit32(x::Posit16) = (unsigned(x) % UInt32) << 16
+
+# downcasting: apply round to nearest
+Posit8(x::Posit16) = posit(Posit8,x)
+Posit8(x::Posit32) = posit(Posit8,x)
+Posit16(x::Posit32) = posit(Posit16,x)
+
+function posit(::Type{PositN1},x::PositN2) where {PositN1<:AbstractPosit,PositN2<:AbstractPosit}
+    ui = unsigned(x)                                # unsigned integer corresponding to input
+    ui = signbit(x) ? -ui : ui                      # round in positive, convert back later
+    Δbits = bitsize(PositN2) - bitsize(PositN1)     # difference in bits
+
+    # ROUND TO NEAREST
+    # tie to even: create ulp/2 = ..007ff.. or ..0080..
+    ulp_half = ~Base.sign_mask(PositN2) >> bitsize(PositN1) # create ..007ff.. (just smaller than ulp/2)
+    ulp_half += ((ui >> Δbits) & 0x1)                       # turn into ..0080.. for odd (=round up if tie)
+    ui += ulp_half
+    ui_trunc = ((ui >> Δbits) % Base.uinttype(PositN1))     # +ulp/2 and round down = round nearest
+    ui_trunc = signbit(x) ? -ui_trunc : ui_trunc            # undo two's complement for negative numbers
+    return reinterpret(PositN1,ui_trunc)
+end
+
+# Due to only 1 exponent bit define Posit16_1(::AbstractPosit) via float conversion
+Posit16_1(x::T) where {T<:Union{Posit8,Posit16,Posit32}} = Posit16_1(float(x))
+
+
 
 # WITH INTEGERS
 # promotions
 Base.promote_rule(::Type{Integer},::Type{T}) where {T<:AbstractPosit} = T
-
-# function Posit16_1(x::Float32)
-#     ui = reinterpret(UInt32,x)	
-    
-#     # REGIME AND EXPONENT BITS
-#     # exponent without the exponent bias 127
-#     e = reinterpret(Int32,(ui & 0x7f80_0000) >> 23) - Int32(127)    
-#     abs_e = abs(e)                          # exponent without sign
-#     signbit_e = signbit(e)                  # sign of exponent
-#     n_regimebits = (abs_e >> 1) + 1         # number of regime bits
-#     exponent_bit = abs_e & 0x1              # exponent bit from exponent odd = 3,5,...?
-
-#     # combine regime bit and exponent and then arithmetic bitshift them in for e.g. 111110_e_....
-#     regime_exponent = reinterpret(Int32,0x8000_0000 | (exponent_bit << 29)) >> n_regimebits
-
-#     # for x < 1 use two's complement to the regime and exponent bits to flip them correctly
-#     regime_exponent = signbit_e ? -regime_exponent : regime_exponent
-#     regime_exponent &= 0x7fff_ffff          # remove any sign that results from arith bitshift
-
-#     # MANTISSA - isolate mantissa bits and shift in position
-#     mantissa = (ui & 0x007f_ffff) >> (n_regimebits-6+signbit_e*(exponent_bit-1))		
-#     # add u/2 = 0x0000_7fff or 0x0000_8000 for tie to even
-#     u_half = 0x0000_7fff + ((mantissa >> 16) & 0x0000_0001)
-
-#     # combine regime, exponent and mantissa, round to nearest, tie to even
-#     p32 = (regime_exponent | mantissa) + u_half
-#     p16 = ((p32 >> 16) % UInt16) - (15 < n_regimebits < 64)    # after +u_half round down via >>
-
-#     # check for sign bit and apply two's complement for negative numbers
-#     p16 = signbit(x) ? -p16 : p16
-#     return reinterpret(Posit16_1,p16)
-# end
 
 # FROM FLOATS
 Posit8(x::T) where {T<:Base.IEEEFloat} = posit(Posit8,x)
@@ -127,21 +111,18 @@ function posit(::Type{PositN},x::FloatN) where {PositN<:AbstractPosit,FloatN<:Ba
 end
 
 ## TO FLOATS
-Base.Float16(x::Posit8) = float(Float32,x)
-Base.Float32(x::Posit8) = float(Float32,x)
-Base.Float64(x::Posit8) = float(Float64,x)
+# corresponding float types for round-free conversion (they don't match in bitsize though!)
+Base.floattype(::Type{Posit8}) = Float32        # Posit8, 16 are subsets of Float32
+Base.floattype(::Type{Posit16}) = Float32
+Base.floattype(::Type{Posit16_1}) = Float32
+Base.floattype(::Type{Posit32}) = Float64       # Posit32 is a subset of Float64
 
-Base.Float16(x::Posit16) = Float16(float(Float32,x))
-Base.Float32(x::Posit16) = float(Float32,x)
-Base.Float64(x::Posit16) = float(Float64,x)
+# generic conversion to float
+Base.float(x::AbstractPosit) = convert(Base.floattype(typeof(x)),x)    
 
-Base.Float16(x::Posit16_1) = Float16(float(Float32,x))
-Base.Float32(x::Posit16_1) = float(Float32,x)
-Base.Float64(x::Posit16_1) = float(Float64,x)
-
-Base.Float16(x::Posit32) = Float16(float(Float64,x))
-Base.Float32(x::Posit32) = Float32(float(Float64,x))
-Base.Float64(x::Posit32) = float(Float64,x)
+Base.Float16(x::AbstractPosit) = float(Float16,x)
+Base.Float32(x::AbstractPosit) = float(Float32,x)
+Base.Float64(x::AbstractPosit) = float(Float64,x)
 
 function Base.float(::Type{FloatN},x::PositN) where {FloatN<:Base.IEEEFloat,PositN<:AbstractPosit}
     

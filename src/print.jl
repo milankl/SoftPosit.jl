@@ -48,7 +48,7 @@ end
 #         print(io, "NaR")
 #     else
 # 		io2 = IOBuffer()
-#         print(io2,FloatX(x))
+#         print(io2,float(x))
 #         f = String(take!(io2))
 #         print(io,string(typeof(x))*"("*f*")")
 #     end

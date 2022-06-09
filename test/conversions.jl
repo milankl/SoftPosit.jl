@@ -79,3 +79,33 @@ end
 
     @test isnan(Float32(Posit16_1(0x8000)))
 end
+
+@testset "Float(Posit32)" begin
+
+    @test iszero(Float32(Posit32(0x0000_0000)))
+    @test iszero(Float64(Posit32(0x0000_0000)))
+
+    # test the first 64 non-zero values and their negation
+    for i in 0x0000_0001:0x0000_0040  
+        @test Float32(Posit32_lookup[i+1]) == Float32(Posit32(i))
+        @test Posit32_lookup[i+1] == Float64(Posit32(i))
+
+        j = 0xffff_ffff-i+0x1
+        @test Float32(Posit32_lookup[i+1]) == -Float32(Posit32(j))
+        @test Posit32_lookup[i+1] == -Float64(Posit32(j))
+    end
+
+    # test the first 8 values (mantissa=0) also on their inverse and negation
+    for i in 0x0000_0001:0x0000_0008
+        j = 0x8000_0000-i  
+        @test Float32(Posit32_lookup[i+1]) == 1/Float32(Posit32(j))
+        @test Posit32_lookup[i+1] == 1/Float64(Posit32(j))
+
+        j = 0x8000_0000+i  
+        @test Float32(Posit32_lookup[i+1]) == -1/Float32(Posit32(j))
+        @test Posit32_lookup[i+1] == -1/Float64(Posit32(j))
+    end
+
+    @test isnan(Float32(Posit32(0x8000_0000)))
+    @test isnan(Float64(Posit32(0x8000_0000)))
+end

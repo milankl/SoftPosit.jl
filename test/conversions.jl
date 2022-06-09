@@ -3,9 +3,14 @@ include("lookup_tables.jl")
 @testset "Float(Posit8)" begin
     # all positive posits
     for i in 0x00:0x7f
-        @test Posit8_lookup[i+1] == Float16(Posit8(i))
         @test Posit8_lookup[i+1] == Float32(Posit8(i))
         @test Posit8_lookup[i+1] == Float64(Posit8(i))
+
+        # some Float16s are outside the Posit8 range
+        f16 = Float16(Posit8(i))
+        if isfinite(f16)
+            @test Posit8_lookup[i+1] == f16
+        end
     end
 
     # special case for NaN due to == testing
@@ -15,9 +20,14 @@ include("lookup_tables.jl")
 
     # all negative posits
     for i in 0x81:0xff
-        @test Posit8_lookup[i+1] == Float16(Posit8(i))
         @test Posit8_lookup[i+1] == Float32(Posit8(i))
         @test Posit8_lookup[i+1] == Float64(Posit8(i))
+
+        # some Float16s are outside the Posit8 range
+        f16 = Float16(Posit8(i))
+        if isfinite(f16)
+            @test Posit8_lookup[i+1] == f16
+        end
     end
 end
 
@@ -108,4 +118,26 @@ end
 
     @test isnan(Float32(Posit32(0x8000_0000)))
     @test isnan(Float64(Posit32(0x8000_0000)))
+end
+
+@testset "Posit8 idempotence" begin
+    for i in 0x00:0xff
+        @test Posit8(i) == Posit8(Float32(Posit8(i)))
+        @test Posit8(i) == Posit8(Float64(Posit8(i)))
+    end
+end
+
+@testset "Posit16 idempotence" begin
+    N = 1000
+    for i in rand(UInt16,N)
+        @test Posit16(i) == Posit16(Float32(Posit16(i)))
+        @test Posit16(i) == Posit16(Float64(Posit16(i)))
+    end
+end
+
+@testset "Posit32 idempotence" begin
+    N = 1000
+    for i in rand(UInt32,N)
+        @test Posit32(i) == Posit32(Float64(Posit32(i)))
+    end
 end

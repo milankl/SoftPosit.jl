@@ -117,10 +117,15 @@ Base.floattype(::Type{Posit32}) = Float64       # Posit32 is a subset of Float64
 
 # generic conversion to float
 Base.float(x::AbstractPosit) = convert(Base.floattype(typeof(x)),x)    
-
-Base.Float16(x::AbstractPosit) = float(Float16,x)
 Base.Float32(x::AbstractPosit) = float(Float32,x)
 Base.Float64(x::AbstractPosit) = float(Float64,x)
+
+# The dynamic range of Float16 is smaller than Posit8/16/32
+# for correct rounding convert first to Float32/64
+Base.Float16(x::Posit8) = Float16(float(Float32,x))
+Base.Float16(x::Posit16) = Float16(float(Float32,x))
+Base.Float16(x::Posit16_1) = Float16(float(Float32,x))
+Base.Float16(x::Posit32) = Float16(float(Float64,x))
 
 function Base.float(::Type{FloatN},x::PositN) where {FloatN<:Base.IEEEFloat,PositN<:AbstractPosit}
     
@@ -138,15 +143,16 @@ function Base.float(::Type{FloatN},x::PositN) where {FloatN<:Base.IEEEFloat,Posi
     n_regimebits = sign_exponent ? leading_ones(absx) : leading_zeros(absx)
 
     # MANTISSA BITS extract by shifting in position for Float32 and masking sign & exponent
-    shift = mantissa_shift(FloatN,PositN)
+    n_non_exponent = n_bits - Base.exponent_bits(PositN)
+    shift = bitsize(FloatN) - Base.exponent_bits(FloatN) - n_non_exponent
     mantissa = ((absx % UIntN) << (n_regimebits + shift)) & Base.significand_mask(FloatN)
     
     # EXPONENT BITS extract by shifting regime bits over the edge and push back to the tail
-    exponent_bits = (absx << (n_regimebits+1)) >> (n_bits-Base.exponent_bits(PositN))
+    exponent_bits = (absx << (n_regimebits+1)) >> n_non_exponent
 
     # ASSEMBLE FLOAT EXPONENT
     # useed^k * 2^e = 2^(2^n_exponent_bits*k+e), ie get k-value from number of regime bits,
-    # <<2 for *4, add exponent bits and Float32 exponent bias (=127)
+    # << n_exponent_bits for *2^exponent_bits, add exponent bits and Float exponent bias (=15,127,1023)
     k = (-1+2sign_exponent)*n_regimebits - sign_exponent
     exponent = ((k << Base.exponent_bits(PositN)) + exponent_bits + Base.exponent_bias(FloatN)) % UIntN
     exponent <<= Base.significand_bits(FloatN)

@@ -60,24 +60,3 @@ bitsize(::Type{UInt64}) = 64
 bitsize(::Type{Float16}) = 16
 bitsize(::Type{Float32}) = 32
 bitsize(::Type{Float64}) = 64
-
-# mantissa shift function for Posit -> Float conversion, generic
-function mantissa_shift(::Type{FloatN},
-                        ::Type{PositN}
-                        ) where {FloatN<:Base.IEEEFloat,PositN<:AbstractPosit}
-    Δbitsize = 8*sizeof(FloatN) - bitsize(PositN)
-    return Δbitsize - (Base.exponent_bits(FloatN)+1) + Base.exponent_bits(PositN) + 1
-end
-
-# fix to avoid recomputation, but values taken from above
-mantissa_shift(::Type{Float16},::Type{Posit8}) = 5
-mantissa_shift(::Type{Float32},::Type{Posit8}) = 18
-mantissa_shift(::Type{Float64},::Type{Posit8}) = 47
-
-mantissa_shift(::Type{Float32},::Type{Posit16}) = 10
-mantissa_shift(::Type{Float64},::Type{Posit16}) = 39
-mantissa_shift(::Type{Float32},::Type{Posit16_1}) = 9
-mantissa_shift(::Type{Float64},::Type{Posit16_1}) = 38
-
-mantissa_shift(::Type{Float64},::Type{Posit32}) = 23
-

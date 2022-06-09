@@ -57,8 +57,6 @@ end
 # Due to only 1 exponent bit define Posit16_1(::AbstractPosit) via float conversion
 Posit16_1(x::T) where {T<:Union{Posit8,Posit16,Posit32}} = Posit16_1(float(x))
 
-
-
 # WITH INTEGERS
 # promotions
 Base.promote_rule(::Type{Integer},::Type{T}) where {T<:AbstractPosit} = T

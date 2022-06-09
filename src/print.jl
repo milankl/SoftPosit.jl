@@ -43,13 +43,13 @@ function n_regimebits(s::String)
     n-1     # subtract the sign bit
 end
 
-# function Base.show(io::IO, x::AbstractPosit)
-#     if isnan(x)
-#         print(io, "NaR")
-#     else
-# 		io2 = IOBuffer()
-#         print(io2,float(x))
-#         f = String(take!(io2))
-#         print(io,string(typeof(x))*"("*f*")")
-#     end
-# end
+function Base.show(io::IO, x::AbstractPosit)
+    if isnan(x)
+        print(io, "NaR")
+    else
+		io2 = IOBuffer()
+        print(io2,float(x))
+        f = String(take!(io2))
+        print(io,string(typeof(x))*"("*f*")")
+    end
+end

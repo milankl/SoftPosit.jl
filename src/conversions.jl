@@ -30,9 +30,9 @@ Posit32(x::UInt32)      = reinterpret(Posit32,x)
 
 # BETWEEN Posits
 # upcasting: append with zeros.
-Posit16(x::Posit8) = (unsigned(x) % UInt16) << 8
-Posit32(x::Posit8) = (unsigned(x) % UInt32) << 24
-Posit32(x::Posit16) = (unsigned(x) % UInt32) << 16
+Posit16(x::Posit8) = reinterpret(Posit16,(unsigned(x) % UInt16) << 8)
+Posit32(x::Posit8) = reinterpret(Posit32,(unsigned(x) % UInt32) << 24)
+Posit32(x::Posit16) = reinterpret(Posit32,(unsigned(x) % UInt32) << 16)
 
 # downcasting: apply round to nearest
 Posit8(x::Posit16) = posit(Posit8,x)
@@ -41,7 +41,6 @@ Posit16(x::Posit32) = posit(Posit16,x)
 
 function posit(::Type{PositN1},x::PositN2) where {PositN1<:AbstractPosit,PositN2<:AbstractPosit}
     ui = unsigned(x)                                # unsigned integer corresponding to input
-    ui = signbit(x) ? -ui : ui                      # round in positive, convert back later
     Δbits = bitsize(PositN2) - bitsize(PositN1)     # difference in bits
 
     # ROUND TO NEAREST
@@ -50,7 +49,6 @@ function posit(::Type{PositN1},x::PositN2) where {PositN1<:AbstractPosit,PositN2
     ulp_half += ((ui >> Δbits) & 0x1)                       # turn into ..0080.. for odd (=round up if tie)
     ui += ulp_half
     ui_trunc = ((ui >> Δbits) % Base.uinttype(PositN1))     # +ulp/2 and round down = round nearest
-    ui_trunc = signbit(x) ? -ui_trunc : ui_trunc            # undo two's complement for negative numbers
     return reinterpret(PositN1,ui_trunc)
 end
 
@@ -167,3 +165,10 @@ function Base.float(::Type{FloatN},x::PositN) where {FloatN<:Base.IEEEFloat,Posi
     f = sign | exponent | mantissa		    # concatenate sign, exponent and mantissa
     return reinterpret(FloatN,f)
 end
+
+# BIGFLOAT
+Base.BigFloat(x::AbstractPosit) = BigFloat(Float64(x))
+Posit8(x::BigFloat) = Posit8(Float64(x))
+Posit16(x::BigFloat) = Posit16(Float64(x))
+Posit16_1(x::BigFloat) = Posit16_1(Float64(x))
+Posit32(x::BigFloat) = Posit32(Float64(x))

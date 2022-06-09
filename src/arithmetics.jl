@@ -1,10 +1,10 @@
 # NEGATION via two's complement
-Base.:(-)(x::T) where {T<:AbstractPosit} = reinterpret(T,-reinterpret(Base.uinttype(T),x))
+Base.:(-)(x::T) where {T<:AbstractPosit} = reinterpret(T,-unsigned(x))
 
 # SIGNBIT from the corresponding Int
-Base.signbit(x::AbstractPosit) = signbit(reinterpret(Base.inttype(typeof(x)),x))
+Base.signbit(x::AbstractPosit) = signbit(signed(x))
 
-# SIGN redefine not x/|x| as in Base for floats
+# SIGN redefine, not x/|x| as in Base for floats
 function Base.sign(x::T) where {T<:AbstractPosit}
     iszero(x) && return zero(T)
     isnan(x) && return notareal(T)

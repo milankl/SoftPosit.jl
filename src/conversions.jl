@@ -107,23 +107,22 @@ function posit(::Type{PositN},x::FloatN) where {PositN<:AbstractPosit,FloatN<:Ba
     # for x < 1 use two's complement to the regime and exponent bits to flip them correctly
     regime_exponent = signbit_e ? -regime_exponent : regime_exponent
     regime_exponent &= ~Base.sign_mask(FloatN)  # remove any sign that results from arith bitshift
+    regime_exponent = reinterpret(UIntN,regime_exponent)
 
     # MANTISSA 
-    mantissa = zero(ui)
-    # mantissa = (ui & Base.significand_mask(FloatN))             # extract mantissa bits
-    # # mantissa >>= (n_regimebits-6+signbit_e*(exponent_bits-1))   # shift in position
-    # mantissa >>= (n_regimebits-6+signbit_e*(exponent_bits-1))   # shift in position
-    # ulp_half = ~Base.sign_mask(FloatN) >> bitsize(PositN)       # create 0x0000_7fff
-    # ulp_half += ((mantissa >> bitsize(PositN)) & 0x1)           # tie to even: u/2 = 0x0000_7fff or 0x0000_8000
+    Δbits = bitsize(FloatN) - bitsize(PositN)                   # difference in bits
+    mantissa = (ui & Base.significand_mask(FloatN))             # extract mantissa bits
+    mantissa >>= (n_regimebits + Base.exponent_bits(PositN) -   # shift in position for posit
+                    Base.exponent_bits(FloatN)+1)
+    
+    # tie to even: create ulp/2 = ..007ff.. or ..0080..
+    ulp_half = ~Base.sign_mask(FloatN) >> bitsize(PositN)       # create ..007ff.. (just smaller than ulp/2)
+    ulp_half += ((mantissa >> Δbits) & 0x1)                     # turn into ..0080.. for odd (=round up if tie)
 
-    # combine regime, exponent and mantissa, round to nearest, tie to even
-    p = (regime_exponent | mantissa) #+ ulp_half
-    # p_trunc = ((p >> 16) % Base.uinttype(PositN)) - (15 < n_regimebits < 64)    # after +u_half round down via >>
-    Δbits = bitsize(FloatN) - bitsize(PositN)
-    p_trunc = ((p >> Δbits) % Base.uinttype(PositN))
+    p = (regime_exponent | mantissa) + ulp_half                 # combine regime, exponent and mantissa
+    p_trunc = ((p >> Δbits) % Base.uinttype(PositN))            # +ulp/2 and round down = round nearest
 
-    # check for sign bit and apply two's complement for negative numbers
-    p_trunc = signbit(x) ? -p_trunc : p_trunc
+    p_trunc = signbit(x) ? -p_trunc : p_trunc                   # two's complement for negative numbers
     return reinterpret(PositN,p_trunc)
 end
 
@@ -167,7 +166,7 @@ function Base.float(::Type{FloatN},x::PositN) where {FloatN<:Base.IEEEFloat,Posi
     exponent_bits = (absx << (n_regimebits+1)) >> (n_bits-Base.exponent_bits(PositN))
 
     # ASSEMBLE FLOAT EXPONENT
-    # useed^k * 2^e = 2^(4k+e), ie get k-value from number of exponent bits,
+    # useed^k * 2^e = 2^(2^n_exponent_bits*k+e), ie get k-value from number of regime bits,
     # <<2 for *4, add exponent bits and Float32 exponent bias (=127)
     k = (-1+2sign_exponent)*n_regimebits - sign_exponent
     exponent = ((k << Base.exponent_bits(PositN)) + exponent_bits + Base.exponent_bias(FloatN)) % UIntN

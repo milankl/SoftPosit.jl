@@ -14,7 +14,7 @@ end
 # TWO ARGUMENT ARITHMETIC, addition, subtraction, multiplication, division via conversion
 for op in (:(+), :(-), :(*), :(/))
     @eval begin
-        Base.$op(x::T,y::T) where {T<:AbstractPosit} = convert(T,$op(FloatX(x),FloatX(y)))
+        Base.$op(x::T,y::T) where {T<:AbstractPosit} = convert(T,$op(float(x),float(y)))
     end
 end
 
@@ -22,7 +22,7 @@ end
 for op in (:sqrt, :exp, :exp2, :exp10, :expm1, :log, :log2, :log10, :log1p,
             :sin, :cos, :tan)
     @eval begin
-        Base.$op(x::T) where {T<:AbstractPosit} = convert(T,$op(FloatX(x)))
+        Base.$op(x::T) where {T<:AbstractPosit} = convert(T,$op(float(x)))
     end
 end
 

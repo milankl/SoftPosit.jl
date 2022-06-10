@@ -266,3 +266,24 @@ end
     @test_skip -floatmax(Posit32) == Posit32(-floatmax(Float32))
     @test -floatmax(Posit32) == Posit32(-floatmax(Float64))
 end
+
+@testset "Bool conversion" begin
+    x = rand(Float64)
+    @testset for T in (Posit8,Posit16,Posit32)
+        @test T(x) == true*T(x)
+        @test zero(T) == false*T(x)
+        @test T(x)+one(T) == true + T(x)
+        @test T(x) == false + T(x)
+        @test T(true) == one(T)
+        @test T(false) == zero(T)
+    end
+end
+
+@testset "Integer conversion" begin
+    @testset for T in (Posit8,Posit16,Posit16_1,Posit32)
+        for i in -8:8
+            @test i == Int(T(i))
+            @test 2i == Int(2*T(i))
+        end
+    end
+end

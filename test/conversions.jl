@@ -153,3 +153,116 @@ end
         @test Posit32(i) == Posit32(Float64(Posit32(i)))
     end
 end
+
+@testset "Conversions: infinity" begin
+
+    # FLOAT TO POSIT
+    @test isnan(Posit8(Inf))
+    @test isnan(Posit8(Inf32))
+    @test isnan(Posit16(Inf))
+    @test isnan(Posit16(Inf32))
+    @test isnan(Posit16_1(Inf))
+    @test isnan(Posit16_1(Inf32))
+    @test isnan(Posit32(Inf))
+    @test_skip isnan(Posit32(Inf32))
+
+    @test isnan(Posit8(-Inf))
+    @test isnan(Posit8(-Inf32))
+    @test isnan(Posit16(-Inf))
+    @test isnan(Posit16(-Inf32))
+    @test isnan(Posit16_1(-Inf))
+    @test isnan(Posit16_1(-Inf32))
+    @test isnan(Posit32(-Inf))
+    @test_skip isnan(Posit32(-Inf32))
+end
+
+@testset "Conversions: NaN" begin
+
+    # FLOAT TO POSIT
+    @test isnan(Posit8(NaN))
+    @test isnan(Posit8(NaN32))
+    @test isnan(Posit16(NaN))
+    @test isnan(Posit16(NaN32))
+    @test isnan(Posit16_1(NaN))
+    @test isnan(Posit16_1(NaN32))
+    @test isnan(Posit32(NaN))
+    @test_skip isnan(Posit32(NaN32))
+
+    @test isnan(Posit8(-NaN))
+    @test isnan(Posit8(-NaN32))
+    @test isnan(Posit16(-NaN))
+    @test isnan(Posit16(-NaN32))
+    @test isnan(Posit16_1(-NaN))
+    @test isnan(Posit16_1(-NaN32))
+    @test isnan(Posit32(-NaN))
+    @test_skip isnan(Posit32(-NaN32))
+
+    # # POSIT TO FLOAT
+    @test isnan(Float16(notareal(Posit8)))
+    @test isnan(Float32(notareal(Posit8)))
+    @test isnan(Float64(notareal(Posit8)))
+
+    @test isnan(Float16(notareal(Posit16)))
+    @test isnan(Float32(notareal(Posit16)))
+    @test isnan(Float64(notareal(Posit16)))
+    
+    @test isnan(Float16(notareal(Posit16_1)))
+    @test isnan(Float32(notareal(Posit16_1)))
+    @test isnan(Float64(notareal(Posit16_1)))
+    
+    @test isnan(Float16(notareal(Posit32)))
+    @test isnan(Float32(notareal(Posit32)))
+    @test isnan(Float64(notareal(Posit32)))
+end
+
+@testset "No underflow" begin
+    @test floatmin(Posit8) == Posit8(4*floatmin(Float32))
+    @test floatmin(Posit8) == Posit8(4*floatmin(Float64))
+
+    @test -floatmin(Posit8) == Posit8(-4*floatmin(Float32))
+    @test -floatmin(Posit8) == Posit8(-4*floatmin(Float64))
+
+    @test floatmin(Posit16) == Posit16(4*floatmin(Float32))
+    @test floatmin(Posit16) == Posit16(4*floatmin(Float64))
+
+    @test -floatmin(Posit16) == Posit16(-4*floatmin(Float32))
+    @test -floatmin(Posit16) == Posit16(-4*floatmin(Float64))
+
+    @test floatmin(Posit16_1) == Posit16_1(4*floatmin(Float32))
+    @test floatmin(Posit16_1) == Posit16_1(4*floatmin(Float64))
+
+    @test -floatmin(Posit16_1) == Posit16_1(-4*floatmin(Float32))
+    @test -floatmin(Posit16_1) == Posit16_1(-4*floatmin(Float64))
+
+    @test_skip floatmin(Posit32) == Posit32(4*floatmin(Float32))
+    @test floatmin(Posit32) == Posit32(4*floatmin(Float64))
+
+    @test_skip -floatmin(Posit32) == Posit32(-4*floatmin(Float32))
+    @test -floatmin(Posit32) == Posit32(-4*floatmin(Float64))
+end
+
+@testset "No overflow" begin
+    @test floatmax(Posit8) == Posit8(floatmax(Float32))
+    @test floatmax(Posit8) == Posit8(floatmax(Float64))
+
+    @test -floatmax(Posit8) == Posit8(-floatmax(Float32))
+    @test -floatmax(Posit8) == Posit8(-floatmax(Float64))
+
+    @test floatmax(Posit16) == Posit16(floatmax(Float32))
+    @test floatmax(Posit16) == Posit16(floatmax(Float64))
+
+    @test -floatmax(Posit16) == Posit16(-floatmax(Float32))
+    @test -floatmax(Posit16) == Posit16(-floatmax(Float64))
+
+    @test floatmax(Posit16_1) == Posit16_1(floatmax(Float32))
+    @test floatmax(Posit16_1) == Posit16_1(floatmax(Float64))
+
+    @test -floatmax(Posit16_1) == Posit16_1(-floatmax(Float32))
+    @test -floatmax(Posit16_1) == Posit16_1(-floatmax(Float64))
+
+    @test_skip floatmax(Posit32) == Posit32(floatmax(Float32))
+    @test floatmax(Posit32) == Posit32(floatmax(Float64))
+
+    @test_skip -floatmax(Posit32) == Posit32(-floatmax(Float32))
+    @test -floatmax(Posit32) == Posit32(-floatmax(Float64))
+end

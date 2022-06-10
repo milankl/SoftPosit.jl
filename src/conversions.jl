@@ -10,6 +10,9 @@ Base.inttype(::Type{Posit16}) = Int16
 Base.inttype(::Type{Posit16_1}) = Int16
 Base.inttype(::Type{Posit32}) = Int32
 
+positype(::Type{Float16}) = Posit16
+positype
+
 # generic conversion to UInt/Int
 Base.unsigned(x::AbstractPosit) = reinterpret(Base.uinttype(typeof(x)),x)
 Base.signed(x::AbstractPosit) = reinterpret(Base.inttype(typeof(x)),x)
@@ -40,22 +43,29 @@ Posit8(x::Posit32) = posit(Posit8,x)
 Posit16(x::Posit32) = posit(Posit16,x)
 
 function posit(::Type{PositN1},x::PositN2) where {PositN1<:AbstractPosit,PositN2<:AbstractPosit}
-    ui = unsigned(x)                                # unsigned integer corresponding to input
-    Δbits = bitsize(PositN2) - bitsize(PositN1)     # difference in bits
+    return reinterpret(PositN1,bitround(Base.uinttype(PositN1),unsigned(x)))
+end
 
-    # ROUND TO NEAREST
-    # tie to even: create ulp/2 = ..007ff.. or ..0080..
-    ulp_half = ~Base.sign_mask(PositN2) >> bitsize(PositN1) # create ..007ff.. (just smaller than ulp/2)
+function bitround(::Type{UIntN1},ui::UIntN2) where {UIntN1<:Unsigned,UIntN2<:Unsigned}
+    Δbits = bitsize(UIntN2) - bitsize(UIntN1)     # difference in bits
+
+    # ROUND TO NEAREST, tie to even: create ulp/2 = ..007ff.. or ..0080..
+    ulp_half = ~Base.sign_mask(UIntN2) >> bitsize(UIntN1)   # create ..007ff.. (just smaller than ulp/2)
     ulp_half += ((ui >> Δbits) & 0x1)                       # turn into ..0080.. for odd (=round up if tie)
-    ui += ulp_half
-    ui_trunc = ((ui >> Δbits) % Base.uinttype(PositN1))     # +ulp/2 and round down = round nearest
-    return reinterpret(PositN1,ui_trunc)
+    ui += ulp_half                                          # +ulp/2 and
+    ui_trunc = (ui >> Δbits) % UIntN1                       # round down via >> is round nearest
+    return ui_trunc
 end
 
 # Due to only 1 exponent bit define Posit16_1(::AbstractPosit) via float conversion
 Posit16_1(x::T) where {T<:Union{Posit8,Posit16,Posit32}} = Posit16_1(float(x))
 
 # WITH INTEGERS
+Posit8(x::Signed) = Posit8(Float64(x))
+Posit16_1(x::Signed) = Posit16_1(Float64(x))
+Posit16(x::Signed) = Posit16(Float64(x))
+Posit32(x::Signed) = Posit32(Float64(x))
+
 # promotions
 Base.promote_rule(::Type{Integer},::Type{T}) where {T<:AbstractPosit} = T
 
@@ -71,39 +81,33 @@ function posit(::Type{PositN},x::FloatN) where {PositN<:AbstractPosit,FloatN<:Ba
     IntN = Base.inttype(FloatN)             # signed integer corresponding to FloatN
     ui = reinterpret(UIntN,x)               # reinterpret input
 
-    # REGIME AND EXPONENT BITS
     # extract exponent bits and shift to tail, then remove bias
     e = (ui & Base.exponent_mask(FloatN)) >> Base.significand_bits(FloatN)
     e = reinterpret(IntN,e) - IntN(Base.exponent_bias(FloatN))
-    abs_e = abs(e)                          # exponent without sign
-    signbit_e = signbit(e)                  # sign of exponent                                 
-    n_regimebits = (abs_e >> Base.exponent_bits(PositN)) + 1    # number of regime bits
-    exponent_bits = abs_e & Base.exponent_mask(PositN)          # exponent from tail of float exponent
+    signbit_e = signbit(e)                  # sign of exponent     
+    k = e >> Base.exponent_bits(PositN)     # k-value for useed^k in posits
 
-    # combine regime bit and exponent and then arithmetic bitshift them in for e.g. 111110_e_....
-    regime_exponent = Base.sign_mask(FloatN) | (exponent_bits << (bitsize(FloatN)-2-Base.exponent_bits(PositN)))
-    regime_exponent = reinterpret(IntN,regime_exponent) >> n_regimebits
+    # ASSEMBLE POSIT REGIME, EXPONENT, MANTISSA
+    # get posit exponent_bits and shift to starting from bitposition 3 (they'll be shifted in later)
+    exponent_bits = e & Base.exponent_mask(PositN)
+    exponent_bits <<= bitsize(FloatN)-2-Base.exponent_bits(PositN)
 
-    # for x < 1 use two's complement to the regime and exponent bits to flip them correctly
-    regime_exponent = signbit_e ? -regime_exponent : regime_exponent
-    regime_exponent &= ~Base.sign_mask(FloatN)  # remove any sign that results from arith bitshift
-    regime_exponent = reinterpret(UIntN,regime_exponent)
+    # create 01000... (for |x|<1) or 10000... (|x| > 1)
+    regime_bits = reinterpret(IntN,Base.sign_mask(FloatN) >> signbit_e)
 
-    # MANTISSA 
-    Δbits = bitsize(FloatN) - bitsize(PositN)                   # difference in bits
-    mantissa = (ui & Base.significand_mask(FloatN))             # extract mantissa bits
-    mantissa >>= (n_regimebits + Base.exponent_bits(PositN) -   # shift in position for posit
-                    Base.exponent_bits(FloatN)+1)
-    
-    # tie to even: create ulp/2 = ..007ff.. or ..0080..
-    ulp_half = ~Base.sign_mask(FloatN) >> bitsize(PositN)       # create ..007ff.. (just smaller than ulp/2)
-    ulp_half += ((mantissa >> Δbits) & 0x1)                     # turn into ..0080.. for odd (=round up if tie)
+    # extract mantissa bits and push to behind exponent rre..emm... (regime still hasn't been shifted)
+    mantissa = reinterpret(IntN,ui & Base.significand_mask(FloatN))             
+    mantissa <<= Base.exponent_bits(FloatN) - Base.exponent_bits(PositN) - 1
 
-    p = (regime_exponent | mantissa) + ulp_half                 # combine regime, exponent and mantissa
-    p_trunc = ((p >> Δbits) % Base.uinttype(PositN))            # +ulp/2 and round down = round nearest
+    # combine regime, exponent, mantissa and arithmetic bitshift for 11..110em or 00..001em
+    regime_exponent_mantissa = regime_bits | exponent_bits | mantissa
+    regime_exponent_mantissa >>= (abs(k+1) + signbit_e)     # arithmetic bitshift
+    regime_exponent_mantissa &= ~Base.sign_mask(FloatN)     # remove possible sign bit from arith shift
 
-    p_trunc = signbit(x) ? -p_trunc : p_trunc                   # two's complement for negative numbers
-    return reinterpret(PositN,p_trunc)
+    # round to nearest of the result
+    p_rounded = bitround(Base.uinttype(PositN),reinterpret(UIntN,regime_exponent_mantissa))
+    p_rounded = signbit(x) ? -p_rounded : p_rounded         # two's complement for negative numbers
+    return reinterpret(PositN,p_rounded)
 end
 
 ## TO FLOATS

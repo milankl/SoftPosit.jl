@@ -5,7 +5,7 @@ Base.zero(::Type{Posit8}) = reinterpret(Posit8,0x00)
 Base.floatmax(::Type{Posit8}) = reinterpret(Posit8,0x7f)    # use floatmax for maxpos
 Base.floatmin(::Type{Posit8}) = reinterpret(Posit8,0x01)    # use floatmin for minpos
 Base.exponent_bits(::Type{Posit8}) = 2
-Base.exponent_mask(::Type{Posit8}) = 0x01
+Base.exponent_mask(::Type{Posit8}) = 0x03
 Base.sign_mask(::Type{Posit8}) = 0x80
 bitsize(::Type{Posit8}) = 8
 
@@ -60,3 +60,8 @@ bitsize(::Type{UInt64}) = 64
 bitsize(::Type{Float16}) = 16
 bitsize(::Type{Float32}) = 32
 bitsize(::Type{Float64}) = 64
+
+# add sign mask for uints
+Base.sign_mask(::Type{UInt16}) = 0x8000
+Base.sign_mask(::Type{UInt32}) = 0x8000_0000
+Base.sign_mask(::Type{UInt64}) = 0x8000_0000_0000_0000

@@ -122,8 +122,11 @@ end
 
 @testset "Posit8 idempotence" begin
     for i in 0x00:0xff
+        println(bitstring(Posit8(i),:split))
         @test Posit8(i) == Posit8(Float32(Posit8(i)))
         @test Posit8(i) == Posit8(Float64(Posit8(i)))
+        @test Posit8(i) == Posit8(Posit16(Posit8(i)))
+        @test Posit8(i) == Posit8(Posit32(Posit8(i)))
     end
 end
 
@@ -132,6 +135,15 @@ end
     for i in rand(UInt16,N)
         @test Posit16(i) == Posit16(Float32(Posit16(i)))
         @test Posit16(i) == Posit16(Float64(Posit16(i)))
+        @test Posit16(i) == Posit16(Posit32(Posit16(i)))
+    end
+end
+
+@testset "Posit16_1 idempotence" begin
+    N = 1000
+    for i in rand(UInt16,N)
+        @test Posit16_1(i) == Posit16_1(Float32(Posit16_1(i)))
+        @test Posit16_1(i) == Posit16_1(Float64(Posit16_1(i)))
     end
 end
 

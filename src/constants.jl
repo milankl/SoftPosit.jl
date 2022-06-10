@@ -65,3 +65,9 @@ bitsize(::Type{Float64}) = 64
 Base.sign_mask(::Type{UInt16}) = 0x8000
 Base.sign_mask(::Type{UInt32}) = 0x8000_0000
 Base.sign_mask(::Type{UInt64}) = 0x8000_0000_0000_0000
+
+# largest representable integers
+Base.maxintfloat(::Type{Posit8}) = 16           # = 2^4
+Base.maxintfloat(::Type{Posit16_1}) = 512       # = 2^9
+Base.maxintfloat(::Type{Posit16}) = 1024        # = 2^10
+Base.maxintfloat(::Type{Posit32}) = 8388608     # = 2^23

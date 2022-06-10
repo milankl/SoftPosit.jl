@@ -1,89 +1,73 @@
 # 8bit Posits
-one(::Type{T}) where {T<:PositAll8} = T(0x40)
-minusone(::Type{T}) where {T<:PositAll8} = T(0xc0)
-zero(::Type{T}) where {T<:PositAll8} = T(0x00)
-floatmax(::Type{T}) where {T<:PositAll8} = T(0x7f)
-floatmin(::Type{T}) where {T<:PositAll8} = T(0x01)
+Base.one(::Type{Posit8}) = reinterpret(Posit8,0x40)
+minusone(::Type{Posit8}) = reinterpret(Posit8,0xc0)
+Base.zero(::Type{Posit8}) = reinterpret(Posit8,0x00)
+Base.floatmax(::Type{Posit8}) = reinterpret(Posit8,0x7f)    # use floatmax for maxpos
+Base.floatmin(::Type{Posit8}) = reinterpret(Posit8,0x01)    # use floatmin for minpos
+Base.exponent_bits(::Type{Posit8}) = 2
+Base.exponent_mask(::Type{Posit8}) = 0x03
+Base.sign_mask(::Type{Posit8}) = 0x80
+bitsize(::Type{Posit8}) = 8
 
-# 16bit Posits
-one(::Type{T}) where {T<:PositAll16} = T(0x4000)
-minusone(::Type{T}) where {T<:PositAll16} = T(0xc000)
-zero(::Type{T}) where {T<:PositAll16} = T(0x0000)
-floatmax(::Type{T}) where {T<:PositAll16} = T(0x7fff)
-floatmin(::Type{T}) where {T<:PositAll16} = T(0x0001)
-
-# 24bit Posits
-one(::Type{T}) where {T<:PositAll24} = T(0x4000_0000)
-minusone(::Type{T}) where {T<:PositAll24} = T(0xc000_0000)
-zero(::Type{T}) where {T<:PositAll24} = T(0x0000_0000)
-floatmax(::Type{T}) where {T<:PositAll24} = T(0x7fff_ff00)
-floatmin(::Type{T}) where {T<:PositAll24} = T(0x0000_0100)
+# 16bit Posits, 1 or 2 exponent bits
+Base.one(::Type{T}) where {T<:PositAll16} = reinterpret(T,0x4000)
+minusone(::Type{T}) where {T<:PositAll16} = reinterpret(T,0xc000)
+Base.zero(::Type{T}) where {T<:PositAll16} = reinterpret(T,0x0000)
+Base.floatmax(::Type{T}) where {T<:PositAll16} = reinterpret(T,0x7fff)
+Base.floatmin(::Type{T}) where {T<:PositAll16} = reinterpret(T,0x0001)
+Base.exponent_bits(::Type{Posit16}) = 2
+Base.exponent_bits(::Type{Posit16_1}) = 1
+Base.exponent_mask(::Type{Posit16}) = 0x0003
+Base.exponent_mask(::Type{Posit16_1}) = 0x0001
+Base.sign_mask(::Type{T}) where {T<:PositAll16} = 0x8000
+bitsize(::Type{T}) where {T<:PositAll16} = 16
 
 # 32bit Posits
-one(::Type{Posit32}) = Posit32(0x4000_0000)
-minusone(::Type{Posit32}) = Posit32(0xc000_0000)
-zero(::Type{Posit32}) = Posit32(0x0000_0000)
-floatmax(::Type{Posit32}) = Posit32(0x7fff_ffff)
-floatmin(::Type{Posit32}) = Posit32(0x0000_0001)
+Base.one(::Type{Posit32}) = reinterpret(Posit32,0x4000_0000)
+minusone(::Type{Posit32}) = reinterpret(Posit32,0xc000_0000)
+Base.zero(::Type{Posit32}) = reinterpret(Posit32,0x0000_0000)
+Base.floatmax(::Type{Posit32}) = reinterpret(Posit32,0x7fff_ffff)
+Base.floatmin(::Type{Posit32}) = reinterpret(Posit32,0x0000_0001)
+Base.exponent_bits(::Type{Posit32}) = 2
+Base.exponent_mask(::Type{Posit32}) = 0x0000_0003
+Base.sign_mask(::Type{Posit32}) = 0x8000_0000
+bitsize(::Type{Posit32}) = 32
 
-# -(x::T) where {T<:PositAll8} = x*minusone(T)
-# -(x::T) where {T<:PositAll16} = x*minusone(T)
-# -(x::T) where {T<:PositAll24} = x*minusone(T)
-# -(x::Posit32) = x*minusone(Posit32)
+# define Not-a-Real (NaR) / complex infinity
+notareal(::Type{Posit8}) = reinterpret(Posit8,0x80)
+notareal(::Type{T}) where {T<:PositAll16} = reinterpret(T,0x8000)
+notareal(::Type{Posit32}) = reinterpret(Posit32,0x8000_0000)
 
-function -(x::T) where {T<:PositAll8}
-    if x == zero(T) || x == notareal(T) # don't change sign for 0 and NaR
-        return x
-    else    # subtracting from 0x00 (two's complement def for neg)
-        return T(0x00 - UInt8(x))
-    end
-end
+# also for instances of posit types
+Base.one(x::AbstractPosit) = one(typeof(x))
+minusone(x::AbstractPosit) = minusone(typeof(x))
+Base.zero(x::AbstractPosit) = zero(typeof(x))
+Base.floatmax(x::AbstractPosit) = floatmax(typeof(x))
+Base.floatmin(x::AbstractPosit) = floatmin(typeof(x))
+notareal(x::AbstractPosit) = notareal(typeof(x))
 
-function -(x::T) where {T<:PositAll16}
-    if x == zero(T) || x == notareal(T) # don't change sign for 0 and NaR
-        return x
-    else    # subtracting from 0x0000 (two's complement def for neg)
-        return T(0x0000 - UInt16(x))
-    end
-end
+# add a nan function to pick the right nan per Float format
+nan(::Type{Float16}) = NaN16
+nan(::Type{Float32}) = NaN32
+nan(::Type{Float64}) = NaN
 
-function -(x::T) where {T<:Union{Posit32,PositAll24}}
-    if x == zero(T) || x == notareal(T) # don't change sign for 0 and NaR
-        return x
-    else    # subtracting from 0x0000 (two's complement def for neg)
-        return T(0x0000_0000 - UInt32(x))
-    end
-end
+# add bitsize function for uints
+bitsize(::Type{UInt8}) = 8
+bitsize(::Type{UInt16}) = 16
+bitsize(::Type{UInt32}) = 32
+bitsize(::Type{UInt64}) = 64
 
-# generalize also for objects of the type AbstractPosit
-minusone(p::AbstractPosit) = minusone(typeof(p))
+bitsize(::Type{Float16}) = 16
+bitsize(::Type{Float32}) = 32
+bitsize(::Type{Float64}) = 64
 
-notareal(::Type{T}) where {T<:PositAll8} = T(0x80)
-notareal(::Type{T}) where {T<:PositAll16} = T(0x8000)
-notareal(::Type{T}) where {T<:PositAll24} = T(0x8000_0000)
-notareal(::Type{Posit32}) = Posit32(0x8000_0000)
-notareal(p::AbstractPosit) = notareal(typeof(p))
+# add sign mask for uints
+Base.sign_mask(::Type{UInt16}) = 0x8000
+Base.sign_mask(::Type{UInt32}) = 0x8000_0000
+Base.sign_mask(::Type{UInt64}) = 0x8000_0000_0000_0000
 
-signbit(p::Posit8) = signbit(reinterpret(Int8,p))
-signbit(p::Posit16) = signbit(reinterpret(Int16,p))
-signbit(p::Posit32) = signbit(reinterpret(Int32,p))
-signbit(p::T) where {T<:Union{PositX1,PositX2}} = signbit(reinterpret(Int32,p))
-
-isfinite(p::T) where {T<:AbstractPosit} = p != notareal(T)
-Base.isnan(p::AbstractPosit) = p == notareal(p)
-
-function sign(p::T) where {T <: AbstractPosit}
-    if signbit(p)       # negative and infinity case
-        if isfinite(p)  # negative
-            return minusone(T)
-        else            # infinity
-            return zero(T)
-        end
-    else                # positive and zero case
-        if iszero(p)    # zero
-            return zero(T)
-        else            # positive
-            return one(T)
-        end
-    end
-end
+# largest representable integers
+Base.maxintfloat(::Type{Posit8}) = 16           # = 2^4
+Base.maxintfloat(::Type{Posit16_1}) = 512       # = 2^9
+Base.maxintfloat(::Type{Posit16}) = 1024        # = 2^10
+Base.maxintfloat(::Type{Posit32}) = 8388608     # = 2^23

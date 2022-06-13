@@ -10,9 +10,6 @@ Base.inttype(::Type{Posit16}) = Int16
 Base.inttype(::Type{Posit16_1}) = Int16
 Base.inttype(::Type{Posit32}) = Int32
 
-positype(::Type{Float16}) = Posit16
-positype
-
 # generic conversion to UInt/Int
 Base.unsigned(x::AbstractPosit) = reinterpret(Base.uinttype(typeof(x)),x)
 Base.signed(x::AbstractPosit) = reinterpret(Base.inttype(typeof(x)),x)
@@ -41,6 +38,12 @@ Posit32(x::Posit16) = reinterpret(Posit32,(unsigned(x) % UInt32) << 16)
 Posit8(x::Posit16) = posit(Posit8,x)
 Posit8(x::Posit32) = posit(Posit8,x)
 Posit16(x::Posit32) = posit(Posit16,x)
+
+# conversion to and from Posit16_1 via floats as number of exponent bits changes
+Posit16_1(x::AbstractPosit) = Posit16_1(float(x))
+Posit8(x::Posit16_1) = Posit8(float(x))
+Posit16(x::Posit16_1) = Posit16(float(x))
+Posit32(x::Posit16_1) = Posit32(float(x))
 
 function posit(::Type{PositN1},x::PositN2) where {PositN1<:AbstractPosit,PositN2<:AbstractPosit}
     return reinterpret(PositN1,bitround(Base.uinttype(PositN1),unsigned(x)))

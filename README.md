@@ -72,5 +72,5 @@ julia> floatmin(Posit16)*floatmin(Posit16)
 Posit16(1.3877788e-17)
 ```
 and similar for other posit formats.
-So in Posit16 arithmetic we have `1e-17*1e-17 = 1e-17` and `1e17*1e17 = 1e17` (no overflow).
+So in Posit16 arithmetic we have `1e-17*1e-17 = 1e-17` (no underflow) and `1e17*1e17 = 1e17` (no overflow).
 

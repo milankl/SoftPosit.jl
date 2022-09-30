@@ -29,12 +29,12 @@
 
     # NaR is the smaller than -maxpos for comparisons
     @testset for T in (Posit8, Posit16, Posit16_1, Posit32)
-        @test maxpos(T) > notareal(T)
+        @test floatmax(T) > notareal(T)
         @test one(T) > notareal(T)
-        @test minpos(T) > notareal(T)
+        @test floatmin(T) > notareal(T)
         @test zero(T) > notareal(T)
-        @test -minpos(T) > notareal(T)
-        @test minusone(T) > notareal(T)
-        @test -maxpos(T) > notareal(T)
+        @test -floatmin(T) > notareal(T)
+        @test -one(T) > notareal(T)
+        @test -floatmax(T) > notareal(T)
     end
 end

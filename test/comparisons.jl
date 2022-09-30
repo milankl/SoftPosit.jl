@@ -1,10 +1,29 @@
 @testset "Comparison" begin
-    f0,f1,f2,f3 = -0.9,-1.0,0.0,1.0
+    n = 100
+    fs = randn(n)
+    sort!(fs)
 
     @testset for T in (Posit8, Posit16, Posit16_1, Posit32)
-        @test (f0 > f1) == (T(f0) > T(f1))
-        @test (f2 >= f2) == (T(f2) >= T(f2))
-        @test (f3 < f1) == (T(f3) < T(f3))
-        @test T(f0) === T(f0)
+        for i in 1:n-1
+            f1 = T(fs[i])
+            f2 = T(fs[i+1])
+            
+            f1 == f2 || @test f2 > f1   # only test when not equal
+            @test f2 >= f1
+
+            f1 == f2 || @test f1 < f2   # only test when not equal
+            @test f1 <= f1
+        end
+    end
+
+    fs = 10*rand(n)
+    @testset for T in (Posit8, Posit16, Posit16_1, Posit32)
+        for f in fs
+            p = T(f)
+            @test p > 0
+            @test p >= 0
+            @test -p < 0
+            @test -p <= 0
+        end
     end
 end

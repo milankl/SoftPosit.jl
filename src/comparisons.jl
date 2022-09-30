@@ -5,5 +5,5 @@ Base.isfinite(x::AbstractPosit) = ~isnan(x)             # finite if not NaR
 Base.iszero(x::AbstractPosit) = x == zero(x)
 
 # COMPARISONS via two's complement (- of uints)
-Base.:(<)(x::T,y::T) where {T<:AbstractPosit} = -unsigned(x) > -unsigned(y)
-Base.:(<=)(x::T,y::T) where {T<:AbstractPosit} = -unsigned(x) >= -unsigned(y)
+Base.:(<)(x::T,y::T) where {T<:AbstractPosit} = signed(x) < signed(y)
+Base.:(<=)(x::T,y::T) where {T<:AbstractPosit} = signed(x) <= signed(y)

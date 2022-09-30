@@ -1,10 +1,5 @@
 module SoftPosit
 
-    # import SoftPosit_jll
-    # # For compatibility with previous versions of SofPosit.jl which used the name
-    # # `SoftPositPath`.
-    # const SoftPositPath = SoftPosit_jll.softposit
-
     export AbstractPosit, Posit8, Posit16, Posit32, Posit16_1,
         notareal
 

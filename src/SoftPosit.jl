@@ -1,7 +1,7 @@
 module SoftPosit
 
     export AbstractPosit, Posit8, Posit16, Posit32, Posit16_1,
-        notareal
+        notareal,maxpos,minpos,minusone
 
     include("type_definitions.jl")
     include("comparisons.jl")

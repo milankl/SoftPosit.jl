@@ -8,6 +8,8 @@ Base.exponent_bits(::Type{Posit8}) = 2
 Base.exponent_mask(::Type{Posit8}) = 0x03
 Base.sign_mask(::Type{Posit8}) = 0x80
 bitsize(::Type{Posit8}) = 8
+maxpos(::Type{Posit8}) = reinterpret(Posit8,0x7f)
+minpos(::Type{Posit8}) = reinterpret(Posit8,0x01)
 
 # 16bit Posits, 1 or 2 exponent bits
 Base.one(::Type{T}) where {T<:PositAll16} = reinterpret(T,0x4000)
@@ -21,6 +23,8 @@ Base.exponent_mask(::Type{Posit16}) = 0x0003
 Base.exponent_mask(::Type{Posit16_1}) = 0x0001
 Base.sign_mask(::Type{T}) where {T<:PositAll16} = 0x8000
 bitsize(::Type{T}) where {T<:PositAll16} = 16
+maxpos(::Type{T}) where {T<:PositAll16} = reinterpret(T,0x7fff)
+minpos(::Type{T}) where {T<:PositAll16} = reinterpret(T,0x0001)
 
 # 32bit Posits
 Base.one(::Type{Posit32}) = reinterpret(Posit32,0x4000_0000)
@@ -32,6 +36,8 @@ Base.exponent_bits(::Type{Posit32}) = 2
 Base.exponent_mask(::Type{Posit32}) = 0x0000_0003
 Base.sign_mask(::Type{Posit32}) = 0x8000_0000
 bitsize(::Type{Posit32}) = 32
+maxpos(::Type{Posit32}) = reinterpret(Posit32,0x7fff_ffff)
+minpos(::Type{Posit32}) = reinterpret(Posit32,0x0000_0001)
 
 # define Not-a-Real (NaR) / complex infinity
 notareal(::Type{Posit8}) = reinterpret(Posit8,0x80)

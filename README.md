@@ -23,14 +23,15 @@ julia>] add SoftPosit
 
 where `]` opens the package manager. Then simply `using SoftPosit` which enables all of the functionality.
 
-# 8, 16 and 32bit posit formats
+# Posit formats
 
-SoftPosit.jl emulates the following Posit number formats `Posit(n,es)`, with `n` number of bits including `es` exponent bits:
-Posit(8,2), Posit(16,2) and Posit(32,2) called
+SoftPosit.jl emulates and exports the following Posit number formats 
 
     Posit8, Posit16, Posit32
+    Posit16_1
 
-as well as the off-standard format Posit(16,1) called `Posit16_1` as part of the previous posit arithmetic
+Posit8, Posit16, Posit32 are the standard formats with 2 exponent bits.
+The off-standard format Posit(16,1) (16 bits with 1 exponent bit, exported as `Posit16_1`) was part of the previous posit arithmetic
 [draft standard](https://posithub.org/docs/posit_standard.pdf).
 
 For all the formats conversions between integers and floats and basic arithmetic operations
@@ -53,6 +54,27 @@ And the bitwise representation split into sign, regime, exponent and mantissa bi
 ```julia
 julia> bitstring(Posit32(123456.7),:split)
 "0 111110 00 11100010010000001011010"
+```
+
+Or solving a linear equation system with Posit8
+```julia
+julia> A = Posit8.(randn(3,3))
+3×3 Matrix{Posit8}:
+ Posit8(1.125)      Posit8(-0.5625) Posit8(0.0390625)
+ Posit8(-1.5)       Posit8(0.0625)  Posit8(1.25)
+ Posit8(-0.40625)   Posit8(1.875)   Posit8(1.125)
+
+julia> b = Posit8.(randn(3))
+3-element Vector{Posit8}:
+ Posit8(1.25)
+ Posit8(-1.375)
+ Posit8(-0.6875)
+
+julia> A\b
+3-element Vector{Posit8}:
+ Posit8(1.0)
+ Posit8(-0.21875)
+ Posit8(0.125)
 ```
 
 For an (outdated) comprehensive notebook covering (almost) all the functionality of SoftPosit.jl

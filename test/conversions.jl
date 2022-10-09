@@ -122,7 +122,6 @@ end
 
 @testset "Posit8 idempotence" begin
     for i in 0x00:0xff
-        println(bitstring(Posit8(i),:split))
         @test Posit8(i) == Posit8(Float32(Posit8(i)))
         @test Posit8(i) == Posit8(Float64(Posit8(i)))
         @test Posit8(i) == Posit8(Posit16(Posit8(i)))
@@ -265,6 +264,31 @@ end
 
     @test_skip -floatmax(Posit32) == Posit32(-floatmax(Float32))
     @test -floatmax(Posit32) == Posit32(-floatmax(Float64))
+end
+
+@testset "No overflow" begin
+    @testset for T in (Posit8,Posit16,Posit16_1,Posit32)
+        for x in 5:0.1:100
+            # from Float64
+            @test isfinite(T( 10.0 ^ x))    # overflow
+            @test isfinite(T(-10.0 ^ x))    # overflow in negative
+        end
+
+        for x in 5:0.1:38
+            # from Float32
+            @test isfinite(T( 10f0 ^ x))    # overflow
+            @test isfinite(T(-10f0 ^ x))    # overflow in negative
+        end
+
+        @testset for F in (Float32,Float64)
+            @test isfinite(T(floatmax(F)))
+            @test isfinite(T(-floatmax(F)))
+            @test ~isfinite(T(floatmax(F)*2))
+            @test ~isfinite(T(-floatmax(F)*2))
+            @test ~isfinite(T(F(Inf)))
+            @test ~isfinite(T(F(-Inf)))
+        end
+    end
 end
 
 @testset "Bool conversion" begin

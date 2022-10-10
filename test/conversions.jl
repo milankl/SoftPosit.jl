@@ -172,7 +172,8 @@ end
 @testset "No underflow" begin
     @testset for T in (Posit8, Posit16, Posit16_1)#, Posit32)
         @testset for F in (Float32,)#Float64)
-            @testset for x in log10(floatmin(F)):1:log10(F(floatmin(T)))
+            xs = ceil(Int,log10(floatmin(F))):floor(Int,log10(F(floatmin(T))))
+            @testset for x in xs
                 @test floatmin(T) == T(F(10) ^ x)
                 @test -floatmin(T) == T(-(F(10) ^ x))
             end

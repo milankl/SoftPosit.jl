@@ -153,140 +153,40 @@ end
     end
 end
 
-@testset "Conversions: infinity" begin
+@testset "Conversions: infinity and nan" begin
+    @testset for T in (Posit8, Posit16, Posit16_1, Posit32)
+        @testset for F in (Float32, Float64)
+            @test isnan(T(F(Inf)))
+            @test isnan(T(-F(Inf)))
+            
+            @test isnan(T(F(NaN)))
+            @test isnan(T(-F(NaN)))
+        end
 
-    # FLOAT TO POSIT
-    @test isnan(Posit8(Inf))
-    @test isnan(Posit8(Inf32))
-    @test isnan(Posit16(Inf))
-    @test isnan(Posit16(Inf32))
-    @test isnan(Posit16_1(Inf))
-    @test isnan(Posit16_1(Inf32))
-    @test isnan(Posit32(Inf))
-    @test_skip isnan(Posit32(Inf32))
-
-    @test isnan(Posit8(-Inf))
-    @test isnan(Posit8(-Inf32))
-    @test isnan(Posit16(-Inf))
-    @test isnan(Posit16(-Inf32))
-    @test isnan(Posit16_1(-Inf))
-    @test isnan(Posit16_1(-Inf32))
-    @test isnan(Posit32(-Inf))
-    @test_skip isnan(Posit32(-Inf32))
-end
-
-@testset "Conversions: NaN" begin
-
-    # FLOAT TO POSIT
-    @test isnan(Posit8(NaN))
-    @test isnan(Posit8(NaN32))
-    @test isnan(Posit16(NaN))
-    @test isnan(Posit16(NaN32))
-    @test isnan(Posit16_1(NaN))
-    @test isnan(Posit16_1(NaN32))
-    @test isnan(Posit32(NaN))
-    @test_skip isnan(Posit32(NaN32))
-
-    @test isnan(Posit8(-NaN))
-    @test isnan(Posit8(-NaN32))
-    @test isnan(Posit16(-NaN))
-    @test isnan(Posit16(-NaN32))
-    @test isnan(Posit16_1(-NaN))
-    @test isnan(Posit16_1(-NaN32))
-    @test isnan(Posit32(-NaN))
-    @test_skip isnan(Posit32(-NaN32))
-
-    # # POSIT TO FLOAT
-    @test isnan(Float16(notareal(Posit8)))
-    @test isnan(Float32(notareal(Posit8)))
-    @test isnan(Float64(notareal(Posit8)))
-
-    @test isnan(Float16(notareal(Posit16)))
-    @test isnan(Float32(notareal(Posit16)))
-    @test isnan(Float64(notareal(Posit16)))
-    
-    @test isnan(Float16(notareal(Posit16_1)))
-    @test isnan(Float32(notareal(Posit16_1)))
-    @test isnan(Float64(notareal(Posit16_1)))
-    
-    @test isnan(Float16(notareal(Posit32)))
-    @test isnan(Float32(notareal(Posit32)))
-    @test isnan(Float64(notareal(Posit32)))
+        @testset for F in (Float16, Float32, Float64)
+            @test isnan(F(notareal(T)))
+        end
+    end
 end
 
 @testset "No underflow" begin
-    @test floatmin(Posit8) == Posit8(4*floatmin(Float32))
-    @test floatmin(Posit8) == Posit8(4*floatmin(Float64))
-
-    @test -floatmin(Posit8) == Posit8(-4*floatmin(Float32))
-    @test -floatmin(Posit8) == Posit8(-4*floatmin(Float64))
-
-    @test floatmin(Posit16) == Posit16(4*floatmin(Float32))
-    @test floatmin(Posit16) == Posit16(4*floatmin(Float64))
-
-    @test -floatmin(Posit16) == Posit16(-4*floatmin(Float32))
-    @test -floatmin(Posit16) == Posit16(-4*floatmin(Float64))
-
-    @test floatmin(Posit16_1) == Posit16_1(4*floatmin(Float32))
-    @test floatmin(Posit16_1) == Posit16_1(4*floatmin(Float64))
-
-    @test -floatmin(Posit16_1) == Posit16_1(-4*floatmin(Float32))
-    @test -floatmin(Posit16_1) == Posit16_1(-4*floatmin(Float64))
-
-    @test_skip floatmin(Posit32) == Posit32(4*floatmin(Float32))
-    @test floatmin(Posit32) == Posit32(4*floatmin(Float64))
-
-    @test_skip -floatmin(Posit32) == Posit32(-4*floatmin(Float32))
-    @test -floatmin(Posit32) == Posit32(-4*floatmin(Float64))
-end
-
-@testset "No overflow" begin
-    @test floatmax(Posit8) == Posit8(floatmax(Float32))
-    @test floatmax(Posit8) == Posit8(floatmax(Float64))
-
-    @test -floatmax(Posit8) == Posit8(-floatmax(Float32))
-    @test -floatmax(Posit8) == Posit8(-floatmax(Float64))
-
-    @test floatmax(Posit16) == Posit16(floatmax(Float32))
-    @test floatmax(Posit16) == Posit16(floatmax(Float64))
-
-    @test -floatmax(Posit16) == Posit16(-floatmax(Float32))
-    @test -floatmax(Posit16) == Posit16(-floatmax(Float64))
-
-    @test floatmax(Posit16_1) == Posit16_1(floatmax(Float32))
-    @test floatmax(Posit16_1) == Posit16_1(floatmax(Float64))
-
-    @test -floatmax(Posit16_1) == Posit16_1(-floatmax(Float32))
-    @test -floatmax(Posit16_1) == Posit16_1(-floatmax(Float64))
-
-    @test_skip floatmax(Posit32) == Posit32(floatmax(Float32))
-    @test floatmax(Posit32) == Posit32(floatmax(Float64))
-
-    @test_skip -floatmax(Posit32) == Posit32(-floatmax(Float32))
-    @test -floatmax(Posit32) == Posit32(-floatmax(Float64))
+    @testset for T in (Posit8, Posit16, Posit16_1)#, Posit32)
+        @testset for F in (Float32,)#Float64)
+            @testset for x in log10(floatmin(F)):1:log10(F(floatmin(T)))
+                @test floatmin(T) == T(F(10) ^ x)
+                @test -floatmin(T) == T(-(F(10) ^ x))
+            end
+        end
+    end
 end
 
 @testset "No overflow" begin
     @testset for T in (Posit8,Posit16,Posit16_1,Posit32)
-        for x in 5:0.1:100
-            # from Float64
-            @test isfinite(T( 10.0 ^ x))    # overflow
-            @test isfinite(T(-10.0 ^ x))    # overflow in negative
-        end
-
-        for x in 5:0.1:38
-            # from Float32
-            @test isfinite(T( 10f0 ^ x))    # overflow
-            @test isfinite(T(-10f0 ^ x))    # overflow in negative
-        end
-
         @testset for F in (Float32,Float64)
-            @test isfinite(T(floatmax(F)))
-            @test isfinite(T(-floatmax(F)))
-            @test ~isfinite(T(floatmax(F)*2))
-            @test ~isfinite(T(-floatmax(F)*2))
-            @test ~isfinite(T(F(Inf)))
-            @test ~isfinite(T(F(-Inf)))
+            @testset for x in log10(F(floatmax(T))):0.1:log10(floatmax(F))
+                @test floatmax(T) == T(F(10) ^ x)       # no overflow
+                @test -floatmax(T) == T(-(F(10) ^ x))    # no overflow (negative)
+            end
         end
     end
 end

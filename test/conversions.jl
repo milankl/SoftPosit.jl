@@ -287,3 +287,10 @@ end
         end
     end
 end
+
+@testset "Irrationals" begin
+    @testset for P in (Posit8,Posit16,Posit16_1,Posit32)
+        tol = Float64(eps(P))
+        @test π ≈ Float64(P(π)) atol=tol rtol=tol
+    end
+end

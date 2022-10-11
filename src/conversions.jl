@@ -188,3 +188,9 @@ Posit8(x::BigFloat) = Posit8(Float64(x))
 Posit16(x::BigFloat) = Posit16(Float64(x))
 Posit16_1(x::BigFloat) = Posit16_1(Float64(x))
 Posit32(x::BigFloat) = Posit32(Float64(x))
+
+# IRRATIONALS
+Posit8(x::Irrational) = Posit8(Base.floattype(Posit8)(x))
+Posit16(x::Irrational) = Posit16(Base.floattype(Posit16)(x))
+Posit16_1(x::Irrational) = Posit16_1(Base.floattype(Posit16_1)(x))
+Posit32(x::Irrational) = Posit32(Base.floattype(Posit32)(x))

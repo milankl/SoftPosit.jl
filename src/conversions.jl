@@ -70,8 +70,6 @@ Posit16(x::Signed) = Posit16(Float64(x))
 Posit32(x::Signed) = Posit32(Float64(x))
 
 Base.Int(x::AbstractPosit) = Int(Float64(x))
-Base.Int(x::AbstractPosit) = Int(Float64(x))
-Base.Int(x::AbstractPosit) = Int(Float64(x))
 
 # promotions
 Base.promote_rule(::Type{Int},::Type{T}) where {T<:AbstractPosit} = T

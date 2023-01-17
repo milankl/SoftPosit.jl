@@ -19,10 +19,19 @@ for op in (:(+), :(-), :(*), :(/), :(^))
 end
 
 # ONE ARGUMENT ARITHMETIC, sqrt, exp, log, etc. via conversion
-for op in (:sqrt, :exp, :exp2, :exp10, :expm1, :log, :log2, :log10, :log1p,
+for op in (:sqrt, :cbrt, :log, :log2, :log10, :log1p,
             :sin, :cos, :tan, :sinpi, :cospi)
     @eval begin
         Base.$op(x::T) where {T<:AbstractPosit} = convert(T,$op(float(x)))
+    end
+end
+
+for op in (:exp, :exp2, :exp10, :expm1)
+    @eval begin
+        function Base.$op(x::T) where {T<:AbstractPosit}
+            val = $op(float(x))
+            isinf(val) ? floatmax(T) : convert(T, val)
+        end
     end
 end
 

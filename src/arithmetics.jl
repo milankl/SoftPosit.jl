@@ -31,11 +31,11 @@ Base.sincospi(x::AbstractPosit) = sinpi(x),cospi(x)   # not in eval loop because
 
 # complex trigonometric functions
 for P in (:Posit8, :Posit16, :Posit16_1, :Posit32)
-        @eval begin
-                sin(x::Complex{$P}) = Complex{$P}(sin(Complex{Base.floattype($P)}(x)))
-                cos(x::Complex{$P}) = Complex{$P}(cos(Complex{Base.floattype($P)}(x)))
-                exp(x::Complex{$P}) = cos(im*x) - im*sin(im*x)
-        end
+    @eval begin
+        Base.sin(x::Complex{$P}) = Complex{$P}(sin(Complex{Base.floattype($P)}(x)))
+        Base.cos(x::Complex{$P}) = Complex{$P}(cos(Complex{Base.floattype($P)}(x)))
+        Base.exp(x::Complex{$P}) = cos(im*x) - im*sin(im*x)
+    end
 end
 
 # nextfloat, prevfloat have a wrap-around behaviour nextfloat(maxpos) = NaR, nextfloat(NaR) = -maxpos

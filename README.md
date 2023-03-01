@@ -96,3 +96,8 @@ Posit16(1.3877788e-17)
 and similar for other posit formats.
 So in Posit16 arithmetic we have `1e-17*1e-17 = 1e-17` (no underflow) and `1e17*1e17 = 1e17` (no overflow).
 
+# Citation
+
+If you use this package please cite us
+
+> Klöwer M, PD Düben and TN Palmer, 2020. Number formats, error mitigation and scope for 16-bit arithmetics in weather and climate modelling analyzed with a shallow water model, Journal of Advances in Modeling Earth Systems, 12, e2020MS002246. [10.1029/2020MS002246](https://doi.org/10.1029/2020MS002246)

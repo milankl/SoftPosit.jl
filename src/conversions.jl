@@ -114,7 +114,7 @@ function posit(::Type{PositN},x::FloatN) where {PositN<:AbstractPosit,FloatN<:Ba
 
     # no under or overflow rounding mode
     max_k = (Base.exponent_bias(FloatN) >> Base.exponent_bits(PositN)) + 1
-    p_rounded -= Base.inttype(PositN)(sign(k)*(bitsize(PositN) <= abs(k) < max_k))
+    p_rounded -= Base.inttype(PositN)(sign(k)*(bitsize(PositN) <= (abs(k)+1) <= max_k))
 
     p_rounded = signbit(x) ? -p_rounded : p_rounded         # two's complement for negative numbers
     return reinterpret(PositN,p_rounded)

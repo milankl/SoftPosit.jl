@@ -17,8 +17,8 @@ Base.signed(x::AbstractPosit) = reinterpret(Base.inttype(typeof(x)), x)
 # BOOL
 for PositType in (:Posit8, :Posit16, :Posit32, :Posit16_1)
     @eval begin
-            $PositType(x::Bool) = x ? one($PositType) : zero($PositType)
-            Base.promote_rule(::Type{Bool}, ::Type{$PositType}) = $PositType
+        $PositType(x::Bool) = x ? one($PositType) : zero($PositType)
+        Base.promote_rule(::Type{Bool}, ::Type{$PositType}) = $PositType
     end
 end
 

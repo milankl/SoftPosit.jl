@@ -62,6 +62,7 @@ bitsize(::Type{Float32}) = 32
 bitsize(::Type{Float64}) = 64
 
 # add sign mask for uints
+Base.sign_mask(::Type{UInt8})  = 0x80
 Base.sign_mask(::Type{UInt16}) = 0x8000
 Base.sign_mask(::Type{UInt32}) = 0x8000_0000
 Base.sign_mask(::Type{UInt64}) = 0x8000_0000_0000_0000

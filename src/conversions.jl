@@ -49,16 +49,24 @@ function posit(::Type{PositN1}, x::PositN2) where {PositN1<:AbstractPosit, Posit
     return reinterpret(PositN1, bitround(Base.uinttype(PositN1), unsigned(x)))
 end
 
+# bitrounding for upcasting (append with zeros) and downcasting (=rounding)
 function bitround(::Type{UIntN1}, ui::UIntN2) where {UIntN1<:Unsigned, UIntN2<:Unsigned}
-    Δbits = bitsize(UIntN2) - bitsize(UIntN1)     # difference in bits
+    Δbits = bitsize(UIntN2) - bitsize(UIntN1)               # difference in bit sizes
 
     # ROUND TO NEAREST, tie to even: create ulp/2 = ..007ff.. or ..0080..
     ulp_half = ~Base.sign_mask(UIntN2) >> bitsize(UIntN1)   # create ..007ff.. (just smaller than ulp/2)
     ulp_half += ((ui >> Δbits) & 0x1)                       # turn into ..0080.. for odd (=round up if tie)
     ui += ulp_half                                          # +ulp/2 and
-    ui_trunc = (ui >> Δbits) % UIntN1                       # round down via >> is round nearest
+
+    # round down via >> is round nearest, but use % UInt64 in case of upcasting to not lose any bits
+    # and append with zeros
+    ui_trunc = ((ui % UInt64) >> Δbits) % UIntN1            
     return ui_trunc
 end
+
+# identity for identical uints (no rounding)
+bitround(::Type{UIntN}, ui::UIntN) where {UIntN<:Unsigned} = ui
+
 
 # Due to only 1 exponent bit define Posit16_1(::AbstractPosit) via float conversion
 Posit16_1(x::T) where {T<:Union{Posit8,Posit16,Posit32}} = Posit16_1(float(x))

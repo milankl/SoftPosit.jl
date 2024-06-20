@@ -1,14 +1,15 @@
-# @testset "Bitround identity" begin
-#     @testset for UIntN in (UInt16, UInt32, UInt64)
-#         for ui in rand(UIntN, 1000)
-#             @test SoftPosit.bitround(UIntN, ui) == ui
-#         end
-#     end
-# end
+@testset "Bitround identity" begin
+    @testset for UIntN in (UInt8, UInt16, UInt32, UInt64)
+        N = 10
+        for ui in rand(UIntN, N)
+            @test SoftPosit.bitround(UIntN, ui) == ui
+        end
+    end
+end
 
 @testset "Bitround round to nearest, tie to even" begin
 
-    N = 100
+    N = 100_000
 
     # UInt16 -> UInt8
     for ui8 in rand(UInt8, N)
@@ -80,5 +81,16 @@
 
         ui32_tie = ui32 | 0x0080_0000   # tie to even
         @test SoftPosit.bitround(UInt8, ui32_tie) == ui8 + (ui8 & 0x1)
+    end
+end
+
+@testset "Bitround upcasting (=no rounding, pad with zeros)" begin
+    @testset for (UIntN1, UIntN2) in zip((UInt8,  UInt16, UInt32),
+                                         (UInt16, UInt32, UInt64))
+        N = 100000
+        for ui in rand(UIntN1, N)
+            Δb = SoftPosit.bitsize(UIntN2) - SoftPosit.bitsize(UIntN1)
+            @test SoftPosit.bitround(UIntN2, ui) >> Δb  == ui
+        end
     end
 end

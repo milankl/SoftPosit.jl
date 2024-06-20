@@ -156,6 +156,7 @@ end
 
 @testset "Powers of 2" begin
     @testset for Posit in (Posit32, Posit16, Posit16_1, Posit8)
+        # TODO make pass for Float16
         @testset for Float in (Float64, Float32)
 
             # smallest and largest representable power of two (positive only)

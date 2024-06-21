@@ -154,6 +154,41 @@ end
     end
 end
 
+@testset "Powers of 2" begin
+    @testset for Posit in (Posit32, Posit16, Posit16_1, Posit8)
+        @testset for Float in (Float64, Float32, Float16)
+
+            # smallest and largest representable power of two (positive only)
+            fmax = floor(Int, log2(Float64(floatmax(Float))))
+            fmin = ceil(Int, log2(Float64(nextfloat(Float(0)))))
+
+            # same for posits but stay in the range where every power of 2
+            # is representable, otherwise a power of 2 can ba round to a
+            # power of 4 ...
+            UIntN = Base.uinttype(Posit)
+            pmin = reinterpret(Posit, 0x08 % UIntN)
+            pmax = reinterpret(Posit, ~reinterpret(UIntN, pmin) << 1 >> 1)
+
+            # now convert to 2^k
+            pmin = ceil(Int, log2(Float64(pmin)))
+            pmax = ceil(Int, log2(Float64(pmax)))
+
+            # powers of two only representable by both formats
+            fpmin = max(fmin, pmin)
+            fpmax = min(fmax, pmax)
+
+            f64s = [2.0^k for k in fpmin:fpmax]
+
+            # @info (Float, Posit, (fpmin, fpmax), (2.0^fpmin, 2.0^fpmax))
+
+            for f in f64s
+                @test Float(Posit(Float(f))) == f
+                @test Float(Posit(Float(-f))) == -f
+            end
+        end
+    end
+end
+
 @testset "Conversions: infinity" begin
 
     # FLOAT TO POSIT
@@ -164,7 +199,7 @@ end
     @test isnan(Posit16_1(Inf))
     @test isnan(Posit16_1(Inf32))
     @test isnan(Posit32(Inf))
-    @test_skip isnan(Posit32(Inf32))
+    @test isnan(Posit32(Inf32))
 
     @test isnan(Posit8(-Inf))
     @test isnan(Posit8(-Inf32))
@@ -173,7 +208,7 @@ end
     @test isnan(Posit16_1(-Inf))
     @test isnan(Posit16_1(-Inf32))
     @test isnan(Posit32(-Inf))
-    @test_skip isnan(Posit32(-Inf32))
+    @test isnan(Posit32(-Inf32))
 end
 
 @testset "Conversions: NaN" begin
@@ -186,7 +221,7 @@ end
     @test isnan(Posit16_1(NaN))
     @test isnan(Posit16_1(NaN32))
     @test isnan(Posit32(NaN))
-    @test_skip isnan(Posit32(NaN32))
+    @test isnan(Posit32(NaN32))
 
     @test isnan(Posit8(-NaN))
     @test isnan(Posit8(-NaN32))
@@ -195,9 +230,9 @@ end
     @test isnan(Posit16_1(-NaN))
     @test isnan(Posit16_1(-NaN32))
     @test isnan(Posit32(-NaN))
-    @test_skip isnan(Posit32(-NaN32))
+    @test isnan(Posit32(-NaN32))
 
-    # # POSIT TO FLOAT
+    # POSIT TO FLOAT
     @test isnan(Float16(notareal(Posit8)))
     @test isnan(Float32(notareal(Posit8)))
     @test isnan(Float64(notareal(Posit8)))

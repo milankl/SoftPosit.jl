@@ -49,7 +49,8 @@ function posit(::Type{PositN1}, x::PositN2) where {PositN1<:AbstractPosit, Posit
     return reinterpret(PositN1, bitround(Base.uinttype(PositN1), unsigned(x)))
 end
 
-# bitrounding for upcasting (append with zeros) and downcasting (=rounding)
+"""Bitround an unsigned integer `ui` to another bitsize `UIntN1`.
+Rounds/downcasts using round to nearest or upcasts (append with zeros)."""
 function bitround(::Type{UIntN1}, ui::UIntN2) where {UIntN1<:Unsigned, UIntN2<:Unsigned}
     Δbits = bitsize(UIntN2) - bitsize(UIntN1)               # difference in bit sizes
 
@@ -64,9 +65,10 @@ function bitround(::Type{UIntN1}, ui::UIntN2) where {UIntN1<:Unsigned, UIntN2<:U
     return ui_trunc
 end
 
-# identity for identical uints (no rounding)
+"""Bitround an unsigned integer `ui::UIntN` to the same bitsize `UIntN`,
+which is just identity. Return `ui`. Special case of `bitround` from
+one unsigned integer size to another."""
 bitround(::Type{UIntN}, ui::UIntN) where {UIntN<:Unsigned} = ui
-
 
 # Due to only 1 exponent bit define Posit16_1(::AbstractPosit) via float conversion
 Posit16_1(x::T) where {T<:Union{Posit8,Posit16,Posit32}} = Posit16_1(float(x))
@@ -88,6 +90,9 @@ Posit16(x::T) where {T<:Base.IEEEFloat} = posit(Posit16, x)
 Posit16_1(x::T) where {T<:Base.IEEEFloat} = posit(Posit16_1, x)
 Posit32(x::T) where {T<:Base.IEEEFloat} = posit(Posit32, x)
 
+"""
+Convert float `x` (any size) to a posit of type `PositN` (e.g. Posit16, Posit32) via
+round to nearest."""
 function posit(::Type{PositN}, x::FloatN) where {PositN<:AbstractPosit, FloatN<:Base.IEEEFloat}
 
     UIntN = Base.uinttype(FloatN)           # unsigned integer corresponding to FloatN
@@ -102,28 +107,33 @@ function posit(::Type{PositN}, x::FloatN) where {PositN<:AbstractPosit, FloatN<:
 
     # ASSEMBLE POSIT REGIME, EXPONENT, MANTISSA
     # get posit exponent_bits and shift to starting from bitposition 3 (they'll be shifted in later)
+    # always construct with 64 bits, always construct with 64 bits, chop off in bitround
+    local regime_bits::Int64
+    local exponent_bits::Int64
+    local mantissa::Int64
+    
+    # REGIME: create 01000... (for |x|<1) or 10000... (|x| >= 1)
+    regime_bits = signed(Base.sign_mask(Float64) >> signbit_e)
+
+    # EXPONENT: push behind regime bits 001100... for 2 exp bits 11
     exponent_bits = signed(e & Base.exponent_mask(PositN))
-    exponent_bits <<= bitsize(FloatN)-2-Base.exponent_bits(PositN)
+    exponent_bits <<= 62-Base.exponent_bits(PositN)
 
-    # create 01000... (for |x|<1) or 10000... (|x| > 1)
-    regime_bits = reinterpret(IntN, Base.sign_mask(FloatN) >> signbit_e)
-
-    # extract mantissa bits and push to behind exponent rre..emm... (regime still hasn't been shifted)
+    # MANTISSA: extract bits and push to behind exponent rre..emm... (regime still hasn't been shifted)
     mantissa = reinterpret(IntN, ui & Base.significand_mask(FloatN))             
-    mantissa <<= Base.exponent_bits(FloatN) - Base.exponent_bits(PositN) - 1
+    mantissa <<= 62 - Base.exponent_bits(PositN) - Base.significand_bits(FloatN)
 
     # combine regime, exponent, mantissa and arithmetic bitshift for 11..110em or 00..001em
     regime_exponent_mantissa = regime_bits | exponent_bits | mantissa
     regime_exponent_mantissa >>= (abs(k+1) + signbit_e)     # arithmetic bitshift
-    regime_exponent_mantissa &= ~Base.sign_mask(FloatN)     # remove possible sign bit from arith shift
+    regime_exponent_mantissa &= ~Base.sign_mask(Float64)    # remove possible sign bit from arith shift
 
-    # round to nearest of the result
+    # round to nearest of the result and truncate to 
     p_rounded = bitround(Base.uinttype(PositN), unsigned(regime_exponent_mantissa))
 
     # no under or overflow rounding mode
     max_k = (Base.exponent_bias(FloatN) >> Base.exponent_bits(PositN)) + 1
     p_rounded -= Base.inttype(PositN)(sign(k)*(bitsize(PositN) <= abs(k) < max_k))
-
     p_rounded = signbit(x) ? -p_rounded : p_rounded         # two's complement for negative numbers
     
     return reinterpret(PositN, p_rounded)

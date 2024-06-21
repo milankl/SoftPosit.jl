@@ -1,6 +1,6 @@
 name = "SoftPosit"
 uuid = "0775deef-a35f-56d7-82da-cfc52f91364d"
-version = "0.5.2"
+version = "0.5.3"
 
 [compat]
 julia = "1.6"

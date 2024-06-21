@@ -108,36 +108,38 @@ function posit(::Type{PositN}, x::FloatN) where {PositN<:AbstractPosit, FloatN<:
     # ASSEMBLE POSIT REGIME, EXPONENT, MANTISSA
     # get posit exponent_bits and shift to starting from bitposition 3 (they'll be shifted in later)
     # always construct with 64 bits, always construct with 64 bits, chop off in bitround
-    local regime_bits::Int64
-    local exponent_bits::Int64
+    local regime::Int64
+    local exponent::Int64
     local mantissa::Int64
     
-    # REGIME: create 01000... (for |x|<1) or 10000... (|x| >= 1)
-    regime_bits = signed(Base.sign_mask(Float64) >> signbit_e)
+    # REGIME: create 01000... (for |x|<1) or 10000... (|x| >= 1), push in later
+    regime = signed(Base.sign_mask(Float64) >> signbit_e)
 
-    # EXPONENT: push behind regime bits 001100... for 2 exp bits 11
-    exponent_bits = signed(e & Base.exponent_mask(PositN))
-    exponent_bits <<= 62-Base.exponent_bits(PositN)
+    # EXPONENT: push behind regime bits rree00... for 2 exp bits ee
+    exponent = signed(e & Base.exponent_mask(PositN))
+    exponent <<= 62 - Base.exponent_bits(PositN)
 
     # MANTISSA: extract bits and push to behind exponent rre..emm... (regime still hasn't been shifted)
     mantissa = reinterpret(IntN, ui & Base.significand_mask(FloatN))             
     mantissa <<= 62 - Base.exponent_bits(PositN) - Base.significand_bits(FloatN)
 
     # combine regime, exponent, mantissa and arithmetic bitshift for 11..110em or 00..001em
-    regime_exponent_mantissa = regime_bits | exponent_bits | mantissa
+    regime_exponent_mantissa = regime | exponent | mantissa
     regime_exponent_mantissa >>= (abs(k+1) + signbit_e)     # arithmetic bitshift
     regime_exponent_mantissa &= ~Base.sign_mask(Float64)    # remove possible sign bit from arith shift
 
-    # round to nearest of the result and truncate to 
-    p_rounded = bitround(Base.uinttype(PositN), unsigned(regime_exponent_mantissa))
+    # round to nearest of the result and truncate to posit bitsize
+    p = bitround(Base.uinttype(PositN), unsigned(regime_exponent_mantissa))
 
     # no under or overflow rounding mode
     max_k = (Base.exponent_bias(FloatN) >> Base.exponent_bits(PositN)) + 1
-    p_rounded -= Base.inttype(PositN)(sign(k)*(bitsize(PositN) <= abs(k) < max_k))
-    p_rounded = signbit(x) ? -p_rounded : p_rounded         # two's complement for negative numbers
-    
-    return reinterpret(PositN, p_rounded)
+    p -= Base.inttype(PositN)(sign(k)*(bitsize(PositN) <= abs(k) < max_k))
+    p = signbit(x) ? -p : p         # two's complement for negative numbers
+
+    return reinterpret(PositN, p)
 end
+
+posit(::Type{PositN}, x::Float16) where {PositN<:AbstractPosit} = posit(PositN, Float32(x))
 
 ## TO FLOATS
 # corresponding float types for round-free conversion (they don't match in bitsize though!)
@@ -147,9 +149,9 @@ Base.floattype(::Type{Posit16_1}) = Float32
 Base.floattype(::Type{Posit32}) = Float64       # Posit32 is a subset of Float64
 
 # generic conversion to float
-Base.float(x::AbstractPosit) = convert(Base.floattype(typeof(x)),x)    
-Base.Float32(x::AbstractPosit) = float(Float32,x)
-Base.Float64(x::AbstractPosit) = float(Float64,x)
+Base.float(x::AbstractPosit) = convert(Base.floattype(typeof(x)), x)    
+Base.Float32(x::AbstractPosit) = float(Float32, x)
+Base.Float64(x::AbstractPosit) = float(Float64, x)
 
 # The dynamic range of Float16 is smaller than Posit8/16/32
 # for correct rounding convert first to Float32/64
@@ -184,7 +186,7 @@ function Base.float(::Type{FloatN}, x::PositN) where {FloatN<:Base.IEEEFloat, Po
     # ASSEMBLE FLOAT EXPONENT
     # useed^k * 2^e = 2^(2^n_exponent_bits*k+e), ie get k-value from number of regime bits,
     # << n_exponent_bits for *2^exponent_bits, add exponent bits and Float exponent bias (=15,127,1023)
-    k = (-1+2sign_exponent)*n_regimebits - sign_exponent
+    k = (-1 + 2sign_exponent)*n_regimebits - sign_exponent
     exponent = ((k << Base.exponent_bits(PositN)) + exponent_bits + Base.exponent_bias(FloatN)) % UIntN
     exponent <<= Base.significand_bits(FloatN)
     
